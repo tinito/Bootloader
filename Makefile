@@ -78,8 +78,9 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        main.c \
-       println.c \
-       app.c
+       print.c \
+       apps/app1.c \
+       apps/app2.c       
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

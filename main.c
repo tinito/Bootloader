@@ -1,12 +1,19 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "println.h"
+#include "print.h"
 
 static WORKING_AREA(waThread1, 128);
 static WORKING_AREA(waAppThread, 128);
+static WORKING_AREA(waAppThread2, 128);
 
-#define APP_ADDRESS 0x08010001
+#define APPTHREAD_ADDRESS	0x08011031
+#define APPCFG_ADDRESS		0x08010000
+
+typedef struct {
+	char name[16];
+	void * address;
+} appcfg_t;
 
 /*===========================================================================*/
 /* Application threads.                                                      */
@@ -19,10 +26,11 @@ static msg_t Thread1(void *arg) {
 
 	(void) arg;
 
-	println("Hello from Thread1()\r\n");
+	print("Hello from Thread1()");
+	printnl();
 
 	while (TRUE) {
-		palTogglePad(LED_GPIO, LED3);
+		palTogglePad(LED_GPIO, LED1);
 		chThdSleepMilliseconds(200);
 	}
 	return 0;
@@ -32,6 +40,7 @@ static msg_t Thread1(void *arg) {
  * Application entry point.
  */
 int main(void) {
+	appcfg_t * appcfg = (appcfg_t *) APPCFG_ADDRESS;
 
 	/*
 	 * System initializations.
@@ -48,7 +57,8 @@ int main(void) {
 	 */
 	sdStart(&SERIAL_DRIVER, NULL);
 
-	println("Hello from main()\r\n");
+	print("Hello from main()");
+	printnl();
 
 	chThdSleepMilliseconds(500);
 
@@ -62,13 +72,35 @@ int main(void) {
 	/*
 	 * Creates the application thread.
 	 */
-	chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO, APP_ADDRESS, NULL);
+	print("Starting ");
+	print(appcfg->name);
+	print(" at address ");
+	printn((int)appcfg->address);
+	print(" ...");
+	printnl();
+	chThdSleepMilliseconds(500);
+
+	chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO, appcfg->address, NULL);
+
+	chThdSleepMilliseconds(5000);
+
+	appcfg++;
+
+	print("Starting ");
+	print(appcfg->name);
+	print(" at address ");
+	printn((int)appcfg->address);
+	print(" ...");
+	printnl();
+	chThdSleepMilliseconds(500);
+
+	chThdCreateStatic(waAppThread2, sizeof(waAppThread2), NORMALPRIO, appcfg->address, NULL);
 
 	/*
 	 * Normal main() thread activity, in this demo it does nothing except
 	 * sleeping in a loop and check the button state.
 	 */
 	while (TRUE) {
-		chThdSleepMilliseconds(200);
+		chThdSleepMilliseconds(500);
 	}
 }
