@@ -26,7 +26,9 @@ __process_stack_size__  = 0x0400;
 
 MEMORY
 {
-    flash : org = 0x08000000, len = 128k
+    flash : org = 0x08000000, len = 64k
+    appcfg : org = 0x08000000+64k, len = 4k
+    app : org = 0x08000000+68k, len = 60k
     ram : org = 0x20000000, len = 20k
 }
 
@@ -59,17 +61,17 @@ SECTIONS
         KEEP(*(SORT(.fini_array.*)))
         PROVIDE(__fini_array_end = .);
     } > flash
-
+    
     .text : ALIGN(16) SUBALIGN(16)
     {
-        *(.text.startup.*)
-        *(.text)
-        *(.text.*)
-        *(.rodata)
-        *(.rodata.*)
-        *(.glue_7t)
-        *(.glue_7)
-        *(.gcc*)
+        *(EXCLUDE_FILE(bl/app.o) .text.startup.*)
+        *(EXCLUDE_FILE(bl/app.o) .text)
+        *(EXCLUDE_FILE(bl/app.o) .text.*)
+        *(EXCLUDE_FILE(bl/app.o) .rodata)
+        *(EXCLUDE_FILE(bl/app.o) .rodata.*)
+        *(EXCLUDE_FILE(bl/app.o) .glue_7t)
+        *(EXCLUDE_FILE(bl/app.o) .glue_7)
+        *(EXCLUDE_FILE(bl/app.o) .gcc*)
     } > flash
 
     .ARM.extab :
@@ -140,7 +142,25 @@ SECTIONS
         *(COMMON)
         . = ALIGN(4);
         PROVIDE(_bss_end = .);
-    } > ram    
+    } > ram
+    
+    .appcfg : ALIGN(16) SUBALIGN(16)
+    {
+        bl/app.o (.appcfg)
+        bl/app.o (.appcfg.*)
+    } > appcfg
+    
+    .app : ALIGN(16) SUBALIGN(16)
+    {
+        bl/app.o (.text.startup.*)
+        bl/app.o (.text)
+        bl/app.o (.text.*)
+        bl/app.o (.rodata)
+        bl/app.o (.rodata.*)
+        bl/app.o (.glue_7t)
+        bl/app.o (.glue_7)
+        bl/app.o (.gcc*)
+    } > app
 }
 
 PROVIDE(end = .);

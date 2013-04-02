@@ -26,7 +26,9 @@ __process_stack_size__  = 0x0400;
 
 MEMORY
 {
-    flash : org = 0x08000000, len = 128k
+    flash : org = 0x08000000, len = 64k
+    appcfg : org = 0x08000000+64k, len = 4k
+    app : org = 0x08000000+68k, len = 60k
     ram : org = 0x20000000, len = 20k
 }
 
@@ -59,7 +61,7 @@ SECTIONS
         KEEP(*(SORT(.fini_array.*)))
         PROVIDE(__fini_array_end = .);
     } > flash
-
+    
     .text : ALIGN(16) SUBALIGN(16)
     {
         *(.text.startup.*)
@@ -140,7 +142,7 @@ SECTIONS
         *(COMMON)
         . = ALIGN(4);
         PROVIDE(_bss_end = .);
-    } > ram    
+    } > ram
 }
 
 PROVIDE(end = .);
