@@ -43,20 +43,20 @@ SECTIONS
     
     .appcfg : ALIGN(16) SUBALIGN(16)
     {
-        bl/app.o (.appcfg)
-        bl/app.o (.appcfg.*)
+        bl/app*.o (.appcfg)
+        bl/app*.o (.appcfg.*)
     } > appcfg
     
     .app : ALIGN(16) SUBALIGN(16)
     {
-        bl/app.o (.text.startup.*)
-        bl/app.o (.text)
-        bl/app.o (.text.*)
-        bl/app.o (.rodata)
-        bl/app.o (.rodata.*)
-        bl/app.o (.glue_7t)
-        bl/app.o (.glue_7)
-        bl/app.o (.gcc*)
+        bl/app*.o (.text.startup.*)
+        bl/app*.o (.text)
+        bl/app*.o (.text.*)
+        bl/app*.o (.rodata)
+        bl/app*.o (.rodata.*)
+        bl/app*.o (.glue_7t)
+        bl/app*.o (.glue_7)
+        bl/app*.o (.gcc*)
     } > app
 }
 

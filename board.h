@@ -22,14 +22,14 @@
 #define _BOARD_H_
 
 /*
- * Setup for the R2D IMU module.
+ * Setup for the R2P Demo module.
  */
 
 /*
  * Board identifier.
  */
-#define BOARD_R2D_IMU_MODULE
-#define BOARD_NAME              "R2D IMU module"
+#define BOARD_R2P_DEMO_MODULE
+#define BOARD_NAME              "R2P Demo module"
 
 /*
  * Board frequencies.
@@ -45,34 +45,19 @@
 /*
  * IO pins assignments.
  */
-#define LED_GPIO				GPIOB
-#define LED1					12
-#define LED2					13
-#define LED3					14
-#define LED4					15
+#define LED_GPIO                GPIOA
+#define LED1                    0
+#define LED2                    1
+#define LED3                    2
+#define LED4                    3
 
-#define SERIAL_DRIVER           SD2
-//#define GPS_SERIAL_DRIVER       SD2
-#define SPI_DRIVER              SPID1
-#define I2C_DRIVER              I2CD1
+#define BUTTON_GPIO             GPIOB
+#define BUTTON1                 1
+#define BUTTON2                 0
 
-#define GYRO_GPIO               GPIOB
-#define GYRO_CS                 0
-#define GYRO_INT1               10
-#define GYRO_INT2               1
-
-#define AM_GPIO                 GPIOB
-#define AM_DRDY                 5
-#define AM_INT1                 6
-#define AM_INT2                 7
-
-#define GPS_GPIO                GPIOA
-#define GPS_STATUS              1
-
-#define TEST_GPIO               GPIOA
-#define TEST1                   1
-#define TEST2                   4
-
+#define SERIAL_DRIVER           SD1
+#define UART_DRIVER             UARTD1
+#define CAN_DRIVER              CAND1
 
 /*
  * I/O ports initial setup, this configuration is established soon after reset
@@ -101,41 +86,32 @@
 /*
  * Port A setup.
  * Everything input with pull-up except:
- * PA1  - Digital input (GPS_STATUS).
- * PA2  - Alternate output (USART2 TX).
- * PA3  - Normal input     (USART2 RX).
- * PA4  - Push Pull output (GPS_RESET).
- * PA5  - Alternate output (SPI1 SCK).
- * PA6  - Normal input     (SPI1 MISO).
- * PA7  - Alternate output (SPI1 MOSI).
- * PA9  - Alternate output (USART1 TX).
- * PA10 - Normal input     (USART1 RX).
- * PA11 - Normal input     (CAN1 RX).
- * PA12 - Alternate output (CAN1 TX).
- */
-#define VAL_GPIOACRL            0xB4B34B38      /*  PA7...PA0 */ /* XXX GPS_STATUS ORA E' COME OUTPUT DI TEST! */
-#define VAL_GPIOACRH            0x888B44B8      /* PA15...PA8 */
+ * PA0  - Push Pull output (LED1).
+ * PA1  - Push Pull output (LED2).
+ * PA2  - Push Pull output (LED3).
+ * PA3  - Push Pull output (LED4).
+ * PA4  - Push Pull output (test signal).
+ * PA5  - Push Pull output (test signal).
+ * PA6  - Open Drain output (test signal).
+ * PA7  - Alternate output (PWM3 CH2).
+ * PA9  - Alternate output (USART2 TX).
+ * PA10 - Normal input     (USART2 RX).
+*/
+#define VAL_GPIOACRL            0xB7333333      /*  PA7...PA0 */
+#define VAL_GPIOACRH            0x888884B8      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
 /*
  * Port B setup.
  * Everything input with pull-up except:
- *
- * PB0 - Push Pull output (GYRO_CS).
- * PB1  - Normal input (GYRO_INT2).
- * PB5  - Normal input (AM_DRDY).
- * PB6  - Normal input (AM_INT1).
- * PB7  - Normal input (AM_INT2).
- * PB8  - Alternate Open Drain output (I2C1 SCL remapped).
- * PB9  - Alternate Open Drain output (I2C1 SDA remapped).
- * PB10 - Normal input (GYRO_INT1).
- * PB12 - Push Pull output (LED1).
- * PB13 - Push Pull output (LED2).
- * PB14 - Push Pull output (LED3).
- * PB15 - Push Pull output (LED4).
+ * PB0  - Normal input with pull-up (BUTTON2).
+ * PB1  - Normal input with pull-up (BUTTON1).
+ * PB1  - Normal input (ICU4 CH1).
+ * PB8  - Normal input (CAN1 RX).
+ * PB9  - Alternate output (CAN1 TX).
  */
-#define VAL_GPIOBCRL            0x88844443      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0x333384FF      /* PB15...PB8 */
+#define VAL_GPIOBCRL            0x88888888      /*  PB7...PB0 */
+#define VAL_GPIOBCRH            0x888888B4      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 
 /*

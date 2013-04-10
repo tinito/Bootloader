@@ -49,7 +49,7 @@ void __early_init(void) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-
-//  AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
-  AFIO->MAPR |= AFIO_MAPR_I2C1_REMAP;
+	  AFIO->MAPR |= AFIO_MAPR_TIM1_REMAP_PARTIALREMAP;
+	  AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
+//	  AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;
 }

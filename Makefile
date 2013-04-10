@@ -58,7 +58,7 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ../ChibiOS
+CHIBIOS = /opt/ChibiStudio/ChibiOS-git
 include ./board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -77,6 +77,9 @@ CSRC = $(PORTSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
+       ./flash/flash.c \
+       ./flash/helper.c \
+       ./flash/ihex.c \
        main.c \
        print.c \
        apps/app1.c \

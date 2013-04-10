@@ -4,5 +4,6 @@
 void printn(uint32_t n);
 void print(char *p);
 void printnl(void);
+int readn(void);
 
 #endif

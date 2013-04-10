@@ -4,6 +4,15 @@
 
 #include "../print.h"
 
+static void test(int n) {
+	systime_t time = chTimeNow();
+	print("APP2: ");
+	printn(n);
+	print(" - ");
+	printn(time);
+	printnl();
+}
+
 msg_t AppThread2(void *arg) {
 	uint32_t cnt;
 
@@ -14,12 +23,10 @@ msg_t AppThread2(void *arg) {
 	printnl();
 
 	while (TRUE) {
-		palTogglePad(LED_GPIO, LED4);
+		palTogglePad(LED_GPIO, LED3);
 		cnt--;
-		print("APP2: ");
-		printn(cnt);
-		printnl();
-		chThdSleepMilliseconds(500);
+		test(cnt);
+		chThdSleepMilliseconds(1000);
 	}
 	return 0;
 }
