@@ -77,13 +77,16 @@ CSRC = $(PORTSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
+       $(CHIBIOS)/os/various/shell.c \
+       $(CHIBIOS)/os/various/chprintf.c \
        ./flash/flash.c \
        ./flash/helper.c \
        ./flash/ihex.c \
        main.c \
        print.c \
        apps/app1.c \
-       apps/app2.c       
+       apps/app2.c \
+       apps/app3.c    
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

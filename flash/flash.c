@@ -170,6 +170,12 @@ int flashPageWrite(flashpage_t page, const flashdata_t* buffer){
 int flashPageWriteIfNeeded(flashpage_t page, const flashdata_t* buffer){
   int err;
 
+  int address = FLASH_ADDRESS_OF_PAGE(page);
+  int base = FLASH_BASE;
+  int top = FLASH_TOP;
+
+  err = address + base - top;
+
   /* Only write on pages in the user area */
   if (!(FLASH_IS_ADDRESS_USERSPACE(FLASH_ADDRESS_OF_PAGE(page))))
     return FLASH_RETURN_NO_PERMISSION;

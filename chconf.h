@@ -132,7 +132,7 @@
  * @note    The default is @p TRUE.
  */
 #if !defined(CH_USE_REGISTRY) || defined(__DOXYGEN__)
-#define CH_USE_REGISTRY                 FALSE
+#define CH_USE_REGISTRY                 TRUE
 #endif
 
 /**
@@ -303,7 +303,7 @@
  * @note    Mutexes are recommended.
  */
 #if !defined(CH_USE_HEAP) || defined(__DOXYGEN__)
-#define CH_USE_HEAP                     FALSE
+#define CH_USE_HEAP                     TRUE
 #endif
 
 /**
@@ -341,7 +341,7 @@
  * @note    Requires @p CH_USE_HEAP and/or @p CH_USE_MEMPOOLS.
  */
 #if !defined(CH_USE_DYNAMIC) || defined(__DOXYGEN__)
-#define CH_USE_DYNAMIC                  FALSE
+#define CH_USE_DYNAMIC                  TRUE
 #endif
 
 /** @} */
@@ -434,7 +434,7 @@
  *          some test cases into the test suite.
  */
 #if !defined(CH_DBG_THREADS_PROFILING) || defined(__DOXYGEN__)
-#define CH_DBG_THREADS_PROFILING        FALSE
+#define CH_DBG_THREADS_PROFILING        TRUE
 #endif
 
 /** @} */

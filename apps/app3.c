@@ -6,23 +6,24 @@
 
 static void test(int n) {
 	systime_t time = chTimeNow();
-	print("APP2: ");
+	print("APP3: ");
 	printn(n);
 	print(" - ");
 	printn(time);
 	print("\r\n");
 }
 
-msg_t AppThread2(void *arg) {
+
+msg_t AppThread3(void *arg) {
 	uint32_t cnt;
 
 	(void) arg;
 
 	cnt = 0xFFFFFFFF;
-	print("Hello from APP2\r\n");
+	print("Hello from APP3\r\n");
 
 	while (TRUE) {
-		palTogglePad(LED_GPIO, LED3);
+		palTogglePad(LED_GPIO, LED4);
 		cnt--;
 		test(cnt);
 		chThdSleepMilliseconds(1000);

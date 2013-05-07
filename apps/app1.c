@@ -24,7 +24,7 @@ static const GPTConfig gpt3cfg = {
 void test(int n) {
 	print("APP1: ");
 	printn(n);
-	printnl();
+	print("\r\n");
 }
 
 msg_t AppThread1(void *arg) {
@@ -33,13 +33,11 @@ msg_t AppThread1(void *arg) {
 	(void) arg;
 
 	cnt = 0;
-	print("Hello from APP1");
-	printnl();
+	print("Hello from APP1\r\n");
 
 	gptStart(&GPTD3, &gpt3cfg);
 	gptStartContinuous(&GPTD3, 500);
-	print("GPTD3 started");
-	printnl();
+	print("GPTD3 started\r\n");
 
 	while (TRUE) {
 		cnt++;

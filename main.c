@@ -1,10 +1,14 @@
 #include "ch.h"
 #include "hal.h"
+#include "shell.h"
+#include "chprintf.h"
 
 #include "flash/flash.h"
 #include "flash/helper.h"
 #include "flash/ihex.h"
 #include "flash/flashconfig.h"
+
+//#include "symbols.h"
 
 #include "print.h"
 
@@ -16,8 +20,8 @@
 
 static WORKING_AREA(waThread1, 128);
 static WORKING_AREA(waFlashThread, 4096);
-static WORKING_AREA(waAppThread, 128);
-static WORKING_AREA(waAppThread2, 128);
+
+#define WA_SIZE_256B      THD_WA_SIZE(256)
 
 #define APPTHREAD_ADDRESS	0x08011031
 #define APPCFG_ADDRESS		0x08010000
@@ -26,6 +30,67 @@ typedef struct {
 	char name[16];
 	void * address;
 } appcfg_t;
+
+/*===========================================================================*/
+/* Command line related.                                                     */
+/*===========================================================================*/
+
+#define SHELL_WA_SIZE   THD_WA_SIZE(4096)
+#define TEST_WA_SIZE    THD_WA_SIZE(1024)
+
+static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
+	size_t n, size;
+
+	(void) argv;
+	if (argc > 0) {
+		chprintf(chp, "Usage: mem\r\n");
+		return;
+	}
+	n = chHeapStatus(NULL, &size);
+	chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+	chprintf(chp, "heap fragments   : %u\r\n", n);
+	chprintf(chp, "heap free total  : %u bytes\r\n", size);
+}
+
+static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
+	static const char *states[] = { THD_STATE_NAMES };
+	Thread *tp;
+
+	(void) argv;
+	if (argc > 0) {
+		chprintf(chp, "Usage: threads\r\n");
+		return;
+	}
+	chprintf(chp, "    addr    stack prio refs     state time\r\n");
+	tp = chRegFirstThread();
+	do {
+		chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n", (uint32_t) tp,
+				(uint32_t) tp->p_ctx.r13, (uint32_t) tp->p_prio,
+				(uint32_t)(tp->p_refs - 1), states[tp->p_state],
+				(uint32_t) tp->p_time);
+		tp = chRegNextThread(tp);
+	} while (tp != NULL);
+}
+/*
+static void cmd_sym(BaseSequentialStream *chp, int argc, char *argv[]) {
+	int i;
+
+	(void) argv;
+	if (argc > 0) {
+		chprintf(chp, "Usage: sym\r\n");
+		return;
+	}
+
+	for (i = 0; i < symbols_nelts; i++) {
+		chprintf(chp, "%s %x\r\n", symbols[i].name, symbols[i].value);
+	}
+}
+*/
+static const ShellCommand commands[] = { { "mem", cmd_mem }, { "threads",
+		cmd_threads }, /*{ "sym", cmd_sym },*/ { NULL, NULL } };
+
+static const ShellConfig shell_cfg1 = { (BaseSequentialStream *) &SERIAL_DRIVER,
+		commands };
 
 /*===========================================================================*/
 /* Application threads.                                                      */
@@ -38,8 +103,7 @@ static msg_t Thread1(void *arg) {
 
 	(void) arg;
 
-	print("Hello from Thread1()");
-	printnl();
+	print("Hello from Thread1()\r\n");
 
 	while (TRUE) {
 		palTogglePad(LED_GPIO, LED1);
@@ -55,12 +119,12 @@ static struct LinearFlashing flashPage;
 static uint8_t buffer[4096];
 
 static msg_t FlashThread(void *arg) {
+	int offset = FLASH_USER_BASE;
 
 	(void) arg;
 
 	while (!chThdShouldTerminate()) {
 		int size = 0;
-		int offset = 0;
 		int n = 0;
 		int err;
 		IHexRecord irec;
@@ -69,24 +133,20 @@ static msg_t FlashThread(void *arg) {
 		char * p = buffer;
 		uint32_t tp = 0;
 
-		print("SIZE: ");
+		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "OFFSET: %x\r\n", offset);
+
+		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "SIZE: ");
 		size = readn();
-		printn(size);
-		printnl();
+		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "%d\r\n", size);
 
 		if (size == 0) {
 			chThdExit(0);
 			return 0;
 		}
 
-		print("OFFSET: ");
-		offset = readn();
-		printn(offset);
-		printnl();
-
 		print("receiving ");
 		printn(size);
-		print("bytes..");
+		print("bytes..\r\n");
 
 		sdRead(&SERIAL_DRIVER, buffer, size);
 		p = buffer;
@@ -97,12 +157,13 @@ static msg_t FlashThread(void *arg) {
 		 */
 		linearFlashProgramStart(&flashPage);
 
-		chSysLock();
+		chSysLock()
+		;
 
 		while ((n = Read_IHexRecord(&irec, p)) >= 0) {
 			switch (irec.type) {
 			case IHEX_TYPE_00: /**< Data Record */
-				address = (((uint32_t) addressOffset) << 16) + irec.address + offset;
+				address = (((uint32_t) addressOffset) << 16) + irec.address;
 
 				err = linearFlashProgram(&flashPage, address,
 						(flashdata_t*) irec.data, irec.dataLen);
@@ -110,22 +171,22 @@ static msg_t FlashThread(void *arg) {
 				if (err) {
 					print("BLERR: ");
 					printn(BOOTLOADER_ERROR_BAD_FLASH);
-					printnl();
+					print("\r\n");
 				}
-/*
-				print("data: ");
-				printn(n);
-				print(" bytes\r\n");
-*/
+				/*
+				 print("data: ");
+				 printn(n);
+				 print(" bytes\r\n");
+				 */
 				break;
 
 			case IHEX_TYPE_04: /**< Extended Linear Address Record */
 				addressOffset = (((uint16_t) irec.data[0]) << 8) + irec.data[1];
-/*
-				print("offset: ");
-				printn(addressOffset);
-				printnl();
-*/
+				/*
+				 print("offset: ");
+				 printn(addressOffset);
+				 print("\r\n");
+				 */
 				break;
 
 			case IHEX_TYPE_01: /**< End of File Record */
@@ -136,7 +197,7 @@ static msg_t FlashThread(void *arg) {
 			case IHEX_TYPE_03: /**< Start Segment Address Record */
 				print("BLERR: ");
 				printn(BOOTLOADER_ERROR_BAD_HEX);
-				printnl();
+				print("\r\n");
 				break;
 			}
 
@@ -153,15 +214,16 @@ static msg_t FlashThread(void *arg) {
 
 		print("Enter AppThread() offset: ");
 		tp = readn();
-		printnl();
+		print("\r\n");
 
-		tp += FLASH_USER_BASE + 1 + offset;
+		tp += offset + 1;
 		print("Starting...");
+
+		offset = FLASH_ADDRESS_OF_PAGE(flashPage.currentPage + 1) - FLASH_BASE + FLASH_USER_BASE;
 
 		chThdSleepMilliseconds(100);
 
-		chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO + 1,
-					tp, NULL);
+		chThdCreateFromHeap(NULL, WA_SIZE_256B, NORMALPRIO + 1, tp, NULL);
 
 		chThdSleepMilliseconds(100);
 	}
@@ -174,8 +236,9 @@ static msg_t FlashThread(void *arg) {
  * Application entry point.
  */
 int main(void) {
+	Thread *shelltp = NULL;
 	Thread * tp;
-	appcfg_t * appcfg = (appcfg_t *) APPCFG_ADDRESS;
+//	appcfg_t * appcfg = (appcfg_t *) APPCFG_ADDRESS;
 
 	/*
 	 * System initializations.
@@ -192,8 +255,13 @@ int main(void) {
 	 */
 	sdStart(&SERIAL_DRIVER, NULL);
 
+	/*
+	 * Shell manager initialization.
+	 */
+	shellInit();
+
 	print("Hello from main()");
-	printnl();
+	print("\r\n");
 
 	chThdSleepMilliseconds(500);
 
@@ -211,47 +279,13 @@ int main(void) {
 	chThdWait(tp);
 	chThdSleepMilliseconds(500);
 
-/*	chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO,
-			APPTHREAD_ADDRESS, NULL);
-*/
 	while (TRUE) {
-		chThdSleepMilliseconds(500);
-	}
-
-	/*
-	 * Creates the application thread.
-	 */
-	print("Starting ");
-	print(appcfg->name);
-	print(" at address ");
-	printn((int) appcfg->address);
-	print(" ...");
-	printnl();
-	chThdSleepMilliseconds(500);
-
-	chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO,
-			appcfg->address, NULL);
-
-	chThdSleepMilliseconds(5000);
-
-	appcfg++;
-
-	print("Starting ");
-	print(appcfg->name);
-	print(" at address ");
-	printn((int) appcfg->address);
-	print(" ...");
-	printnl();
-	chThdSleepMilliseconds(500);
-
-	chThdCreateStatic(waAppThread2, sizeof(waAppThread2), NORMALPRIO,
-			appcfg->address, NULL);
-
-	/*
-	 * Normal main() thread activity, in this demo it does nothing except
-	 * sleeping in a loop and check the button state.
-	 */
-	while (TRUE) {
-		chThdSleepMilliseconds(500);
+		if (!shelltp)
+			shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+		else if (chThdTerminated(shelltp)) {
+			chThdRelease(shelltp);
+			shelltp = NULL;
+		}
+		chThdSleepMilliseconds(200);
 	}
 }
