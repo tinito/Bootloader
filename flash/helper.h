@@ -9,7 +9,8 @@
 #define HELPER_H_
 
 struct LinearFlashing {
-  flashdata_t pageBuffer[FLASH_PAGE_SIZE / sizeof(flashdata_t)];
+  flashdata_t *pageBuffer;
+  size_t pageSize;
   bool_t pageBufferTainted;
   flashpage_t currentPage;
 };

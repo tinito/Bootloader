@@ -24,7 +24,7 @@ void printn(uint32_t n) {
 	}
 }
 
-void read(char ** p) {
+void read(char * p) {
 	char c;
 
 	while ((c = sdGet(&SERIAL_DRIVER))!= 0){

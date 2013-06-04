@@ -3,7 +3,7 @@
 
 void print(char * p);
 void printn(uint32_t n);
-void read(char ** p);
+void read(char * p);
 int readn(void);
 
 #endif

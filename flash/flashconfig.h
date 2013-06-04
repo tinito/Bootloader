@@ -19,7 +19,7 @@
  * @brief Start address of user application
  */
 #if !defined(FLASH_USER_BASE) || defined(__DOXYGEN__)
-#define FLASH_USER_BASE         ((uint32_t)0x08010000)
+#define FLASH_USER_BASE         ((uint32_t)0x08000000)
 #endif
 
 

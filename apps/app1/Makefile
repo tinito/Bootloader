@@ -46,6 +46,10 @@ ifeq ($(USE_FWLIB),)
   USE_FWLIB = no
 endif
 
+ifeq ($(APPNAME),)
+  APPNAME = app1
+endif
+
 #
 # Architecture or project specific options
 ##############################################################################
@@ -55,36 +59,23 @@ endif
 #
 
 # Define project name here
-PROJECT = ch
+PROJECT = app1
 
 # Imported source files and paths
 CHIBIOS = /home/texzk/ChibiStudio/chibios
-include ./board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F1xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
+BOOTLOADER = ../..
+include $(BOOTLOADER)/board.mk
 
 # Define linker script file here
-LDSCRIPT= ./STM32F103xB.ld
+LDSCRIPT= $(BOOTLOADER)/STM32F103xB.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = $(PORTSRC) \
-       $(KERNSRC) \
-       $(TESTSRC) \
-       $(HALSRC) \
-       $(PLATFORMSRC) \
-       $(BOARDSRC) \
-       $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS)/os/various/shell.c \
-       $(CHIBIOS)/os/various/chprintf.c \
-       ./flash/flash.c \
-       ./flash/helper.c \
-       ./flash/ihex.c \
-       main.c \
-       print.c \
-       loader/apploader.c
+CSRC = app1.c $(BOOTLOADER)/print.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -116,7 +107,11 @@ ASMSRC = $(PORTASM)
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various \
-         ./loader
+         $(BOOTLOADER) ..
+
+OSELF = $(BOOTLOADER)/build/ch.elf
+
+APPSTACK = 256
 
 #
 # Project, sources and paths
@@ -135,7 +130,7 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
-LD   = $(TRGT)gcc
+LD   = $(TRGT)gcc -Wl,--just-symbols=$(OSELF)
 #LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
@@ -212,4 +207,13 @@ ifeq ($(USE_FWLIB),yes)
   USE_OPT += -DUSE_STDPERIPH_DRIVER
 endif
 
+$(shell mkdir -p build/obj build/lst)
+
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk
+
+load: $(OBJS) $(LDSCRIPT) $(OSELF) all
+	@rm -f $(BUILDDIR)/$(PROJECT).hex $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).dmp
+	@echo Installing $(BUILDDIR)/$(PROJECT).hex ...
+	@touch $(OSELF)
+	$(BOOTLOADER)/load.py $(APPNAME) $(BUILDDIR)/$(PROJECT).hex $(APPSTACK) $(TRGT)ld $(LDSCRIPT) $(OSELF) $(BUILDDIR)/$(PROJECT).map $(BUILDDIR)/$(PROJECT).elf $(OBJS)
+

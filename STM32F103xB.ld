@@ -26,13 +26,18 @@ __process_stack_size__  = 0x0400;
 
 MEMORY
 {
-    flash : org = 0x08000000, len = 128k
-    ram : org = 0x20000000, len = 20k
+    flash   : org = 0x08000000, len = 127k
+    appcfg  : org = 0x08000000 + (128k - 1k), len = 1k
+    ram     : org = 0x20000000, len = 20k
 }
 
 __ram_start__           = ORIGIN(ram);
 __ram_size__            = LENGTH(ram);
 __ram_end__             = __ram_start__ + __ram_size__;
+
+__appcfg_start__        = ORIGIN(appcfg);
+__appcfg_size__         = LENGTH(appcfg);
+__appcfg_end__          = __appcfg_start__ + __appcfg_size__;
 
 SECTIONS
 {
@@ -60,6 +65,12 @@ SECTIONS
         PROVIDE(__fini_array_end = .);
     } > flash
 
+    .appcfg : ALIGN(4) SUBALIGN(4)
+    {
+        *.o (.appcfg)
+        *.o (.appcfg.*)
+    } > appcfg
+
     .text : ALIGN(16) SUBALIGN(16)
     {
         *(.text.startup.*)
@@ -77,11 +88,12 @@ SECTIONS
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > flash
 
-    .ARM.exidx : {
+    .ARM.exidx :
+    {
         PROVIDE(__exidx_start = .);
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
         PROVIDE(__exidx_end = .);
-     } > flash
+    } > flash
 
     .eh_frame_hdr :
     {
@@ -93,11 +105,11 @@ SECTIONS
         *(.eh_frame)
     } > flash
     
-    .textalign : ONLY_IF_RO
+    .textalign :
     {
-        . = ALIGN(8);
+        . = ALIGN(16);
     } > flash
-
+    
     _etext = .;
     _textdata = _etext;
 
@@ -140,7 +152,7 @@ SECTIONS
         *(COMMON)
         . = ALIGN(4);
         PROVIDE(_bss_end = .);
-    } > ram    
+    } > ram
 }
 
 PROVIDE(end = .);
@@ -148,3 +160,7 @@ _end            = .;
 
 __heap_base__   = _end;
 __heap_end__    = __ram_end__;
+
+__apppgm_base__    = _textdata + (_edata - _data);
+__apppgm_end__     = __appcfg_start__;
+

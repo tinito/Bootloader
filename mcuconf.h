@@ -141,8 +141,8 @@
  * SERIAL driver system settings.
  */
 #define STM32_SERIAL_USE_USART1             TRUE
-#define STM32_SERIAL_USE_USART2             TRUE
-#define STM32_SERIAL_USE_USART3             FALSE
+#define STM32_SERIAL_USE_USART2             FALSE
+#define STM32_SERIAL_USE_USART3             TRUE
 #define STM32_SERIAL_USE_UART4              FALSE
 #define STM32_SERIAL_USE_UART5              FALSE
 #define STM32_SERIAL_USE_USART6             FALSE
@@ -172,7 +172,7 @@
  */
 #define STM32_UART_USE_USART1               FALSE
 #define STM32_UART_USE_USART2               FALSE
-#define STM32_UART_USE_USART3               TRUE
+#define STM32_UART_USE_USART3               FALSE
 #define STM32_UART_USART1_IRQ_PRIORITY      12
 #define STM32_UART_USART2_IRQ_PRIORITY      12
 #define STM32_UART_USART3_IRQ_PRIORITY      12

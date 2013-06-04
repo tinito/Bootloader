@@ -1,0 +1,164 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+flash            0x08000000         0x0001fc00
+appcfg           0x0801fc00         0x00000400
+ram              0x20000000         0x00005000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00000400                __main_stack_size__ = 0x400
+                0x00000400                __process_stack_size__ = 0x400
+                0x20000000                __ram_start__ = ORIGIN (ram)
+                0x00005000                __ram_size__ = 0x5000
+                0x20005000                __ram_end__ = (__ram_start__ + __ram_size__)
+                0x0801fc00                __appcfg_start__ = ORIGIN (appcfg)
+                0x00000400                __appcfg_size__ = 0x400
+                0x08020000                __appcfg_end__ = (__appcfg_start__ + __appcfg_size__)
+                0x00000000                . = 0x0
+                0x00000000                _text = .
+
+startup
+ *(vectors)
+
+constructors    0x08000000        0x0
+                0x08000000                PROVIDE (__init_array_start, .)
+ *(SORT(.init_array.*))
+ *(.init_array)
+                0x08000000                PROVIDE (__init_array_end, .)
+
+destructors     0x08000000        0x0
+                0x08000000                PROVIDE (__fini_array_start, .)
+ *(.fini_array)
+ *(SORT(.fini_array.*))
+                0x08000000                PROVIDE (__fini_array_end, .)
+
+.appcfg
+ *.o(.appcfg)
+ *.o(.appcfg.*)
+
+.text           0x08010930       0xa0
+ *(.text.startup.*)
+ *(.text)
+ .text          0x08010930       0x88 build/obj/app3.o
+                0x08010980                app_thread
+ *(.text.*)
+ *(.rodata)
+ *fill*         0x080109b8        0x8 00
+ .rodata        0x080109c0       0x10 build/obj/app3.o
+ *(.rodata.*)
+ *(.glue_7t)
+ .glue_7t       0x00000000        0x0 linker stubs
+ *(.glue_7)
+ .glue_7        0x00000000        0x0 linker stubs
+ *(.gcc*)
+
+.vfp11_veneer   0x080109d0        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x080109d0        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.ARM.extab
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+
+.ARM.exidx      0x080109d0        0x0
+                0x080109d0                PROVIDE (__exidx_start, .)
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x080109d0                PROVIDE (__exidx_end, .)
+
+.eh_frame_hdr
+ *(.eh_frame_hdr)
+
+.eh_frame
+ *(.eh_frame)
+
+.textalign      0x080109d0        0x0
+                0x080109d0                . = ALIGN (0x10)
+                0x080109d0                _etext = .
+                0x080109d0                _textdata = _etext
+
+.stacks         0x20000000      0x800
+                0x20000000                . = ALIGN (0x8)
+                0x20000000                __main_stack_base__ = .
+                0x20000400                . = (. + __main_stack_size__)
+ *fill*         0x20000000      0x400 00
+                0x20000400                . = ALIGN (0x8)
+                0x20000400                __main_stack_end__ = .
+                0x20000400                __process_stack_base__ = .
+                0x20000400                __main_thread_stack_base__ = .
+                0x20000800                . = (. + __process_stack_size__)
+ *fill*         0x20000400      0x400 00
+                0x20000800                . = ALIGN (0x8)
+                0x20000800                __process_stack_end__ = .
+                0x20000800                __main_thread_stack_end__ = .
+
+.data           0x00000000        0x0 load address 0x080109d0
+                0x00000000                . = ALIGN (0x4)
+                0x00000000                PROVIDE (_data, .)
+ *(.data)
+ .data          0x00000000        0x0 build/obj/app3.o
+                0x00000000                . = ALIGN (0x4)
+ *(.data.*)
+                0x00000000                . = ALIGN (0x4)
+ *(.ramtext)
+                0x00000000                . = ALIGN (0x4)
+                0x00000000                PROVIDE (_edata, .)
+
+.bss            0x00000000        0x0 load address 0x080109d0
+                0x00000000                . = ALIGN (0x4)
+                0x00000000                PROVIDE (_bss_start, .)
+ *(.bss)
+ .bss           0x00000000        0x0 build/obj/app3.o
+                0x00000000                . = ALIGN (0x4)
+ *(.bss.*)
+                0x00000000                . = ALIGN (0x4)
+ *(COMMON)
+                0x00000000                . = ALIGN (0x4)
+                0x00000000                PROVIDE (_bss_end, .)
+                0x00000000                PROVIDE (end, .)
+                0x00000000                _end = .
+                0x20000800                __heap_base__ = _end
+                0x20005000                __heap_end__ = __ram_end__
+                0x08010e54                __apppgm_base__ = (_textdata + (_edata - _data))
+                0x0801fc00                __apppgm_end__ = __appcfg_start__
+LOAD ../../build/ch.elf
+Address of section .text set to 0x8010930
+Address of section .bss set to 0x0
+Address of section .data set to 0x0
+LOAD build/obj/app3.o
+OUTPUT(build/app3.elf elf32-littlearm)
+
+.debug_info     0x00000000      0x2b1
+ .debug_info    0x00000000      0x2b1 build/obj/app3.o
+
+.debug_abbrev   0x00000000      0x13e
+ .debug_abbrev  0x00000000      0x13e build/obj/app3.o
+
+.debug_loc      0x00000000       0x70
+ .debug_loc     0x00000000       0x70 build/obj/app3.o
+
+.debug_aranges  0x00000000       0x20
+ .debug_aranges
+                0x00000000       0x20 build/obj/app3.o
+
+.debug_line     0x00000000      0x247
+ .debug_line    0x00000000      0x247 build/obj/app3.o
+
+.debug_str      0x00000000      0x182
+ .debug_str     0x00000000      0x182 build/obj/app3.o
+                                0x1c8 (size before relaxing)
+
+.comment        0x00000000       0x70
+ .comment       0x00000000       0x70 build/obj/app3.o
+                                 0x71 (size before relaxing)
+
+.ARM.attributes
+                0x00000000       0x33
+ .ARM.attributes
+                0x00000000       0x33 build/obj/app3.o
+
+.debug_frame    0x00000000       0x50
+ .debug_frame   0x00000000       0x50 build/obj/app3.o

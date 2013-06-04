@@ -8,38 +8,18 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "flash/flash.h"
-#include "flash/helper.h"
+#include "flash.h"
+#include "helper.h"
 
-
-memcpy(void *dst, const void *src, size_t len) {
-	size_t i;
-
-	if ((uintptr_t)dst % sizeof(long) == 0 &&
-	(uintptr_t)src % sizeof(long) == 0 &&
-	len % sizeof(long) == 0) {
-
-		long *d = dst;
-		const long *s = src;
-
-		for (i=0; i<len/sizeof(long); i++) {
-			d[i] = s[i];
-		}
-
-	} else {
-		char *d = dst;
-		const char *s = src;
-
-		for (i=0; i<len; i++) {
-			d[i] = s[i];
-		}
-	}
-
-	return dst;
-}
-
+#include <string.h>
 
 void linearFlashProgramStart(struct LinearFlashing* flash) {
+
+  chDbgCheck(flash->pageBuffer != NULL, "linearFlashProgramStart");
+  chDbgCheck(flash->pageSize > 0, "linearFlashProgramStart");
+  chDbgCheck((flash->pageSize & (sizeof(flashdata_t) - 1)) == 0,
+             "linearFlashProgramStart");
+
   flash->pageBufferTainted = FALSE;
   flash->currentPage = 0;
 }
@@ -56,7 +36,7 @@ int linearFlashProgramFinish(struct LinearFlashing* flash) {
 }
 
 int linearFlashProgram(struct LinearFlashing* flash, uint32_t address,
-                          const flashdata_t* buffer, int length) {
+                       const flashdata_t* buffer, int length) {
   flashpage_t oldPage;
   int pagePosition;
   int processLen;
@@ -64,25 +44,21 @@ int linearFlashProgram(struct LinearFlashing* flash, uint32_t address,
   int err;
 
   /* Process all given words */
-  while(length > 0) {
+  while (length > 0) {
     oldPage = flash->currentPage;
     flash->currentPage = FLASH_PAGE_OF_ADDRESS(address);
     pagePosition = address - FLASH_ADDRESS_OF_PAGE(flash->currentPage);
     processLen = (FLASH_PAGE_SIZE - pagePosition);
 
-    /* Read back new page if page as changed. */
-    if(oldPage != flash->currentPage) {
+    /* Read back new page if page has changed. */
+    if (oldPage != flash->currentPage) {
       err = flashPageRead(flash->currentPage, flash->pageBuffer);
-
-      /* Return if we get errors here. */
-      if (err == CH_FAILED)
-        return -1;
-
+      if (err == CH_FAILED) return -1;
       flash->pageBufferTainted = FALSE;
     }
 
     /* Process no more bytes than remaining */
-    if(processLen > length) {
+    if (processLen > length) {
       processLen = length;
     } else if (processLen <= length) {
       writeback = TRUE;
@@ -90,7 +66,7 @@ int linearFlashProgram(struct LinearFlashing* flash, uint32_t address,
 
     /* Copu buffer into page buffer and mark as tainted*/
     memcpy(&flash->pageBuffer[pagePosition / sizeof(flashdata_t)], buffer,
-            processLen);
+           processLen);
     flash->pageBufferTainted = TRUE;
 
     /* Decrease handled bytes from total length. */
@@ -99,47 +75,36 @@ int linearFlashProgram(struct LinearFlashing* flash, uint32_t address,
     /* Writeback buffer if needed */
     if (writeback) {
       err = flashPageWriteIfNeeded(flash->currentPage, flash->pageBuffer);
-
-      /* Return if we get errors here. */
-      if (err)
-        return err;
-
+      if (err) return err;
       writeback = FALSE;
     }
   }
-
-  return 0;
+  return CH_SUCCESS;
 }
 
 
 void flashJumpApplication(uint32_t address) {
-  typedef void (*pFunction)(void);
 
-  pFunction Jump_To_Application;
+  typedef void (*proc_f)(void);
 
-  /* variable that will be loaded with the start address of the application */
-  vu32* JumpAddress;
-  const vu32* ApplicationAddress = (vu32*) address;
+  proc_f jumpf;
+  unsigned i;
 
-  /* get jump address from application vector table */
-  JumpAddress = (vu32*) ApplicationAddress[1];
+  /* Load jump address into function pointer.*/
+  jumpf = (proc_f)((uint32_t *)address)[1];
 
-  /* load this address into function pointer */
-  Jump_To_Application = (pFunction) JumpAddress;
-
-  /* reset all interrupts to default */
+  /* Reset all interrupts to default */
   chSysDisable();
 
-  /* Clear pending interrupts just to be on the save side*/
+  /* Clear pending interrupts just to be on the safe side.*/
   SCB_ICSR = ICSR_PENDSVCLR;
 
-  /* Disable all interrupts */
-  int i;
-  for(i=0; i<8; i++)
+  /* Disable all interrupts.*/
+  for (i = 0; i < 8; ++i) {
     NVIC->ICER[i] = NVIC->IABR[i];
+  }
 
-
-  /* set stack pointer as in application's vector table */
-  __set_MSP((u32) (ApplicationAddress[0]));
-  Jump_To_Application();
+  /* Set stack pointer as in application's vector table.*/
+  __set_MSP(((uint32_t *)address)[0]);
+  jumpf();
 }

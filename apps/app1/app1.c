@@ -27,7 +27,7 @@ void test(int n) {
 	print("\r\n");
 }
 
-msg_t AppThread1(void *arg) {
+msg_t app_thread(void *arg) {
 	uint32_t cnt;
 
 	(void) arg;
@@ -41,7 +41,7 @@ msg_t AppThread1(void *arg) {
 
 	while (TRUE) {
 		cnt++;
-		test(cnt);
+		/*test(cnt);*/
 		chThdSleepMilliseconds(5000);
 	}
 	return 0;

@@ -8,89 +8,196 @@
 #include "flash/ihex.h"
 #include "flash/flashconfig.h"
 
-//#include "symbols.h"
+#include "loader/apploader.h"
 
 #include "print.h"
 
-#define BOOTLOADER_ERROR_MMC_NOCARD     1
-#define BOOTLOADER_ERROR_MMC_BADFS      2
-#define BOOTLOADER_ERROR_MMC_NOFILE     3
-#define BOOTLOADER_ERROR_BAD_HEX        4
-#define BOOTLOADER_ERROR_BAD_FLASH      5
+static WORKING_AREA(waBlinkerThread, 128);
 
-static WORKING_AREA(waThread1, 128);
-static WORKING_AREA(waFlashThread, 4096);
+AppLoader app_loader;
+AppLoaderConfig app_loadercfg;
+Thread *app_threads[LDR_MAX_APPS] = { NULL };
 
-#define WA_SIZE_256B      THD_WA_SIZE(256)
+static void init_loader_config(AppLoaderConfig *cfgp) {
 
-#define APPTHREAD_ADDRESS	0x08011031
-#define APPCFG_ADDRESS		0x08010000
+  extern const uint8_t __ram_start__[], __ram_end__[];
+  extern const uint8_t __apppgm_base__[], __apppgm_end__[];
+  extern const uint8_t __appcfg_start__[], __appcfg_end__[];
 
-typedef struct {
-	char name[16];
-	void * address;
-} appcfg_t;
+  static uint8_t pagebuf[FLASH_PAGE_SIZE];
+  static uint8_t ihexbuf[2 * (1 + 1 + 2 + 1 + 255 + 1)];
+
+  cfgp->chp = (BaseChannel *)&SD3;
+#if LDR_ENABLE_DEBUG
+  cfgp->dbgchp = (BaseChannel *)&SERIAL_DRIVER;
+#endif
+  cfgp->pagebufp = pagebuf;
+  cfgp->pagebuflen = sizeof(pagebuf);
+  cfgp->ihexbufp = ihexbuf;
+  cfgp->ihexbuflen = sizeof(ihexbuf);
+  cfgp->ramstart = (uint32_t)__ram_start__;
+  cfgp->ramend   = (uint32_t)__ram_end__;
+  cfgp->pgmstart = (uint32_t)__apppgm_base__;
+  cfgp->pgmend   = (uint32_t)__apppgm_end__;
+  cfgp->cfgstart = (uint32_t)__appcfg_start__;
+  cfgp->cfgend   = (uint32_t)__appcfg_end__;
+}
+
+static void empty_incoming_queue(BaseChannel *chp) {
+
+  while (chnGetTimeout(chp, TIME_IMMEDIATE) >= 0) {}
+}
 
 /*===========================================================================*/
 /* Command line related.                                                     */
 /*===========================================================================*/
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(4096)
-#define TEST_WA_SIZE    THD_WA_SIZE(1024)
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
-	size_t n, size;
+  size_t n, size;
 
-	(void) argv;
-	if (argc > 0) {
-		chprintf(chp, "Usage: mem\r\n");
-		return;
-	}
-	n = chHeapStatus(NULL, &size);
-	chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
-	chprintf(chp, "heap fragments   : %u\r\n", n);
-	chprintf(chp, "heap free total  : %u bytes\r\n", size);
+  (void) argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: mem\r\n");
+    return;
+  }
+  n = chHeapStatus(NULL, &size);
+  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+  chprintf(chp, "heap fragments   : %u\r\n", n);
+  chprintf(chp, "heap free total  : %u bytes\r\n", size);
 }
 
 static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
-	static const char *states[] = { THD_STATE_NAMES };
-	Thread *tp;
+  static const char *states[] = { THD_STATE_NAMES };
+  Thread *tp;
 
-	(void) argv;
-	if (argc > 0) {
-		chprintf(chp, "Usage: threads\r\n");
-		return;
-	}
-	chprintf(chp, "    addr    stack prio refs     state time\r\n");
-	tp = chRegFirstThread();
-	do {
-		chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n", (uint32_t) tp,
-				(uint32_t) tp->p_ctx.r13, (uint32_t) tp->p_prio,
-				(uint32_t)(tp->p_refs - 1), states[tp->p_state],
-				(uint32_t) tp->p_time);
-		tp = chRegNextThread(tp);
-	} while (tp != NULL);
+  (void) argv;
+  if (argc > 0) {
+    chprintf(chp, "Usage: threads\r\n");
+    return;
+  }
+  chprintf(chp, "    addr    stack prio refs     state time\r\n");
+  tp = chRegFirstThread();
+  do {
+    chprintf(chp, "%.8lx %.8lx %4lu %4lu %9s %lu\r\n", (uint32_t) tp,
+            (uint32_t) tp->p_ctx.r13, (uint32_t) tp->p_prio,
+            (uint32_t)(tp->p_refs - 1), states[tp->p_state],
+            (uint32_t) tp->p_time);
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
 }
-/*
-static void cmd_sym(BaseSequentialStream *chp, int argc, char *argv[]) {
-	int i;
 
-	(void) argv;
-	if (argc > 0) {
-		chprintf(chp, "Usage: sym\r\n");
-		return;
-	}
+static void cmd_reboot(BaseSequentialStream *chp, int argc, char *argv[]) {
 
-	for (i = 0; i < symbols_nelts; i++) {
-		chprintf(chp, "%s %x\r\n", symbols[i].name, symbols[i].value);
-	}
+  (void)argc; (void)argv;
+
+  chprintf(chp, "\r\n\r\nBOARD IS REBOOTING\r\n\r\n");
+  boardReset();
 }
-*/
-static const ShellCommand commands[] = { { "mem", cmd_mem }, { "threads",
-		cmd_threads }, /*{ "sym", cmd_sym },*/ { NULL, NULL } };
 
-static const ShellConfig shell_cfg1 = { (BaseSequentialStream *) &SERIAL_DRIVER,
-		commands };
+static void cmd_app_list(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  uint32_t i;
+
+  chprintf(chp, "ID @.text   #.text   @.bss    #.bss    @.data   #.data   "
+                "@datapgm #stack   @thread  Name\r\n");
+  ldrLock(&app_loader);
+  for (i = 0; i < flash_apps.numapps; ++i) {
+    const app_info_t *const infop = (const app_info_t *)&flash_apps.infos[i];
+    chprintf(chp, "%.2x ", (int)i);
+    chprintf(chp, "%.8lx %.8lx ", infop->pgmadr, infop->pgmlen);
+    chprintf(chp, "%.8lx %.8lx ", infop->bssadr, infop->bsslen);
+    chprintf(chp, "%.8lx %.8lx ", infop->dataadr, infop->datalen);
+    chprintf(chp, "%.8lx %.8lx ", infop->datapgmadr, infop->stacklen);
+    chprintf(chp, "%.8lx %s\r\n", (uint32_t)app_threads[i], infop->name);
+  }
+  ldrUnlock(&app_loader);
+}
+
+static void cmd_app_install(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  (void)chp; (void)argc, (void)argv;
+
+  empty_incoming_queue(app_loadercfg.chp);
+  ldrLock(&app_loader);
+  ldrInstall(&app_loader);
+  ldrUnlock(&app_loader);
+}
+
+static void cmd_app_run(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  if (argc != 1) {
+    chprintf(chp, "Usage:\r\n  run <appname>\r\n");
+    return;
+  }
+
+  ldrLock(&app_loader);
+  ldrRun(&app_loader, argv[0], app_threads);
+  ldrUnlock(&app_loader);
+}
+
+static void cmd_app_remove_last(BaseSequentialStream *chp,
+                                int argc, char *argv[]) {
+
+  (void)chp; (void)argc, (void)argv;
+
+  ldrLock(&app_loader);
+  ldrRemoveLast(&app_loader);
+  ldrUnlock(&app_loader);
+}
+
+static void cmd_app_remove_all(BaseSequentialStream *chp,
+                               int argc, char *argv[]) {
+
+  (void)chp; (void)argc, (void)argv;
+
+  ldrLock(&app_loader);
+  ldrRemoveAll(&app_loader);
+  ldrUnlock(&app_loader);
+}
+
+static const ShellCommand commands[] = {
+  { "mem",              cmd_mem },
+  { "threads",          cmd_threads },
+  { "reboot",           cmd_reboot },
+  { "app_install",      cmd_app_install },
+  { "app_run",          cmd_app_run },
+  { "app_list",         cmd_app_list },
+  { "app_remove_last",  cmd_app_remove_last },
+  { "app_remove_all",   cmd_app_remove_all },
+  { NULL, NULL }
+};
+
+static const ShellConfig shell_cfg1 = {
+  (BaseSequentialStream *)&SERIAL_DRIVER,
+  commands
+};
+
+static void start_apps(void) {
+
+  static BaseSequentialStream *const chp =
+    (BaseSequentialStream *)&SERIAL_DRIVER;
+  unsigned i;
+
+  ldrLock(&app_loader);
+  for (i = 0; i < flash_apps.numapps; ++i) {
+    const app_info_t *const infop = (const app_info_t *)&flash_apps.infos[i];
+    if (app_threads[i] == NULL) {
+      chprintf(chp, "Starting app \"%s\" ...\r\n");
+      app_threads[i] = chThdCreateFromHeap(NULL, infop->stacklen, NORMALPRIO,
+                                           (tfunc_t)infop->threadadr,
+                                           (void *)&app_threads[i]);
+      if (app_threads[i] == NULL) {
+        chprintf(chp, "ERROR: Cannot allocate the \"%s\" stack (%d B)\r\n",
+                 infop->name, infop->stacklen);
+      } else {
+        chprintf(chp, "App \"%s\" started\r\n", infop->name);
+      }
+    }
+  }
+  ldrUnlock(&app_loader);
+}
 
 /*===========================================================================*/
 /* Application threads.                                                      */
@@ -99,193 +206,60 @@ static const ShellConfig shell_cfg1 = { (BaseSequentialStream *) &SERIAL_DRIVER,
 /*
  * Red LED blinker thread, times are in milliseconds.
  */
-static msg_t Thread1(void *arg) {
+static msg_t BlinkerThread(void *arg) {
 
 	(void) arg;
-
-	print("Hello from Thread1()\r\n");
 
 	while (TRUE) {
 		palTogglePad(LED_GPIO, LED1);
 		chThdSleepMilliseconds(200);
 	}
-	return 0;
-}
-
-/*
- * Flash programming thread.
- */
-static struct LinearFlashing flashPage;
-static uint8_t buffer[4096];
-
-static msg_t FlashThread(void *arg) {
-	int offset = FLASH_USER_BASE;
-
-	(void) arg;
-
-	while (!chThdShouldTerminate()) {
-		int size = 0;
-		int n = 0;
-		int err;
-		IHexRecord irec;
-		uint16_t addressOffset = 0x00;
-		uint32_t address = 0x0;
-		char * p = buffer;
-		uint32_t tp = 0;
-
-		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "OFFSET: %x\r\n", offset);
-
-		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "SIZE: ");
-		size = readn();
-		chprintf((BaseSequentialStream *)&SERIAL_DRIVER, "%d\r\n", size);
-
-		if (size == 0) {
-			chThdExit(0);
-			return 0;
-		}
-
-		print("receiving ");
-		printn(size);
-		print("bytes..\r\n");
-
-		sdRead(&SERIAL_DRIVER, buffer, size);
-		p = buffer;
-		buffer[size] = '\0';
-
-		/*
-		 * Here comes the flashing magic (pun intended).
-		 */
-		linearFlashProgramStart(&flashPage);
-
-		chSysLock()
-		;
-
-		while ((n = Read_IHexRecord(&irec, p)) >= 0) {
-			switch (irec.type) {
-			case IHEX_TYPE_00: /**< Data Record */
-				address = (((uint32_t) addressOffset) << 16) + irec.address;
-
-				err = linearFlashProgram(&flashPage, address,
-						(flashdata_t*) irec.data, irec.dataLen);
-
-				if (err) {
-					print("BLERR: ");
-					printn(BOOTLOADER_ERROR_BAD_FLASH);
-					print("\r\n");
-				}
-				/*
-				 print("data: ");
-				 printn(n);
-				 print(" bytes\r\n");
-				 */
-				break;
-
-			case IHEX_TYPE_04: /**< Extended Linear Address Record */
-				addressOffset = (((uint16_t) irec.data[0]) << 8) + irec.data[1];
-				/*
-				 print("offset: ");
-				 printn(addressOffset);
-				 print("\r\n");
-				 */
-				break;
-
-			case IHEX_TYPE_01: /**< End of File Record */
-			case IHEX_TYPE_05: /**< Start Linear Address Record */
-				break;
-
-			case IHEX_TYPE_02: /**< Extended Segment Address Record */
-			case IHEX_TYPE_03: /**< Start Segment Address Record */
-				print("BLERR: ");
-				printn(BOOTLOADER_ERROR_BAD_HEX);
-				print("\r\n");
-				break;
-			}
-
-			p += n;
-		}
-
-		err = linearFlashProgramFinish(&flashPage);
-
-		chSysUnlock();
-
-		print("...");
-		printn(n);
-		print(" bytes wrote to Flash.\r\n");
-
-		print("Enter AppThread() offset: ");
-		tp = readn();
-		print("\r\n");
-
-		tp += offset + 1;
-		print("Starting...");
-
-		offset = FLASH_ADDRESS_OF_PAGE(flashPage.currentPage + 1) - FLASH_BASE + FLASH_USER_BASE;
-
-		chThdSleepMilliseconds(100);
-
-		chThdCreateFromHeap(NULL, WA_SIZE_256B, NORMALPRIO + 1, tp, NULL);
-
-		chThdSleepMilliseconds(100);
-	}
-
-	chThdExit(0);
-	return 0;
+	return CH_SUCCESS;
 }
 
 /*
  * Application entry point.
  */
 int main(void) {
-	Thread *shelltp = NULL;
-	Thread * tp;
-//	appcfg_t * appcfg = (appcfg_t *) APPCFG_ADDRESS;
 
-	/*
-	 * System initializations.
-	 * - HAL initialization, this also initializes the configured device drivers
-	 *   and performs the board-specific initializations.
-	 * - Kernel initialization, the main() function becomes a thread and the
-	 *   RTOS is active.
-	 */
-	halInit();
-	chSysInit();
+  Thread *shelltp = NULL;
 
-	/*
-	 * Activates the serial driver 1 using the driver default configuration.
-	 */
-	sdStart(&SERIAL_DRIVER, NULL);
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
 
-	/*
-	 * Shell manager initialization.
-	 */
-	shellInit();
+  /* Activates the serial drivers using the default configuration.*/
+  sdStart(&SD1, NULL);
+  sdStart(&SD3, NULL);
 
-	print("Hello from main()");
-	print("\r\n");
+  /* Creates the blinker thread.*/
+  chThdCreateStatic(waBlinkerThread, sizeof(waBlinkerThread), NORMALPRIO,
+                    BlinkerThread, NULL);
 
-	chThdSleepMilliseconds(500);
+  /* Initializes the app loader.*/
+  init_loader_config(&app_loadercfg);
+  ldrInit(&app_loader, &app_loadercfg);
+  /*start_apps();*/
 
-	/*
-	 * Creates the blinker thread.
-	 */
-	chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+  /* Shell manager initialization.*/
+  shellInit();
 
-	/*
-	 * Creates the Flash thread.
-	 */
-	tp = chThdCreateStatic(waFlashThread, sizeof(waFlashThread), NORMALPRIO,
-			FlashThread, NULL);
+  /* Background loop.*/
+  while (TRUE) {
+    if (shelltp == NULL) {
+      shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
+    } else if (chThdTerminated(shelltp)) {
+      chThdRelease(shelltp);
+      shelltp = NULL;
+    }
+    chThdSleepMilliseconds(200);
+  }
 
-	chThdWait(tp);
-	chThdSleepMilliseconds(500);
-
-	while (TRUE) {
-		if (!shelltp)
-			shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-		else if (chThdTerminated(shelltp)) {
-			chThdRelease(shelltp);
-			shelltp = NULL;
-		}
-		chThdSleepMilliseconds(200);
-	}
+  return CH_SUCCESS;
 }

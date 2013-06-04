@@ -1,0 +1,545 @@
+
+build/app3.elf:     file format elf32-littlearm
+build/app3.elf
+architecture: arm, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x08010930
+
+Program Header:
+    LOAD off    0x00000000 vaddr 0x08010000 paddr 0x08010000 align 2**15
+         filesz 0x000009d0 memsz 0x000009d0 flags r-x
+    LOAD off    0x00008000 vaddr 0x20000000 paddr 0x20000000 align 2**15
+         filesz 0x00000000 memsz 0x00000800 flags rw-
+private flags = 5000002: [Version5 EABI] [has entry point]
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000a0  08010930  08010930  00000930  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .stacks       00000800  20000000  20000000  00008000  2**0
+                  ALLOC
+  2 .debug_info   000002b1  00000000  00000000  000009d0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_abbrev 0000013e  00000000  00000000  00000c81  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_loc    00000070  00000000  00000000  00000dbf  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_aranges 00000020  00000000  00000000  00000e2f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_line   00000247  00000000  00000000  00000e4f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    00000182  00000000  00000000  00001096  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .comment      00000070  00000000  00000000  00001218  2**0
+                  CONTENTS, READONLY
+  9 .ARM.attributes 00000033  00000000  00000000  00001288  2**0
+                  CONTENTS, READONLY
+ 10 .debug_frame  00000050  00000000  00000000  000012bc  2**2
+                  CONTENTS, READONLY, DEBUGGING
+SYMBOL TABLE:
+08010930 l    d  .text	00000000 .text
+20000000 l    d  .stacks	00000000 .stacks
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_loc	00000000 .debug_loc
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    df *ABS*	00000000 app3.c
+080109c0 l       .text	00000000 .LC0
+080109c8 l       .text	00000000 .LC1
+080109cc l       .text	00000000 .LC2
+08010930 l     F .text	0000004e test
+0800f860 g     O *ABS*	0000003c pal_default_config
+08006470 g     F *ABS*	0000003a Vector58
+0800659c g     F *ABS*	000000ea Vector9C
+08006810 g     F *ABS*	0000003c VectorE8
+08001d94 g     F *ABS*	0000011c chSemSignalWait
+0800d1ac g     F *ABS*	00000198 ldrRemoveLast
+08009c70 g     F *ABS*	0000001a _isatty_r
+08000390 g     F *ABS*	000000ac nvicEnableVector
+080007c8 g     F *ABS*	0000003c dbg_check_lock_from_isr
+08000200  w    F *ABS*	00000002 VectorAC
+080005f8 g     F *ABS*	000000c6 chSysTimerHandlerI
+080014cc g     F *ABS*	00000022 chThdExit
+08002538 g     F *ABS*	0000005a chEvtBroadcastFlagsI
+08000e4c g     F *ABS*	0000006e chSchGoSleepTimeoutS
+080045c0 g     F *ABS*	0000000a i2cInit
+08009b98 g     F *ABS*	0000001e _lseek_r
+080043d8 g     F *ABS*	00000036 gptStartContinuous
+08003c70 g     F *ABS*	00000078 canTryReceiveI
+0800ad0c g     F *ABS*	0000007c flashPageWriteIfNeeded
+0800d344 g     F *ABS*	00000062 ldrRemoveAll
+08003e78 g     F *ABS*	0000008e canReceiveTimeout
+08001fc0 g     F *ABS*	000000f8 chMtxLockS
+08000750 g     F *ABS*	0000003c dbg_check_lock
+08002ca4 g     F *ABS*	0000005a chOQResetI
+08005338 g     F *ABS*	00000066 spiStartIgnore
+08003ce8 g     F *ABS*	00000036 canSetFilters
+080064ac g     F *ABS*	0000003a Vector5C
+0800b990 g     F *ABS*	00000038 print
+08007354 g     F *ABS*	000001e8 ext_lld_channel_enable
+08009344 g     F *ABS*	00000028 spi_lld_select
+0800da34 g     F *ABS*	0000005a __floatdidf
+08000200  w    F *ABS*	00000002 NMIVector
+080011b4 g     F *ABS*	00000030 _thread_memfill
+080020f0 g     F *ABS*	00000066 chMtxTryLockS
+0801fc00 g       *ABS*	00000000 __apppgm_end__
+08003308 g     F *ABS*	0000010c chHeapFree
+00000400 g       *ABS*	00000000 __appcfg_size__
+0800427c g     F *ABS*	00000022 gptObjectInit
+08005ad8 g     F *ABS*	00000074 dmaInit
+08003534 g     F *ABS*	00000034 halPolledDelay
+08006d08 g     F *ABS*	0000007e can_lld_stop
+08007680 g     F *ABS*	000000dc gpt_lld_start
+080030fc g     F *ABS*	00000060 chCoreGrowI
+08003da0 g     F *ABS*	00000048 canClearFiltersI
+08006930 g     F *ABS*	000000b0 Vector8C
+08007844 g     F *ABS*	00000052 gpt_lld_polled_delay
+080038fc g     F *ABS*	0000002e adcAcquireBus
+08002420 g     F *ABS*	0000006c chEvtUnregister
+08004be0 g     F *ABS*	0000007a pwmStart
+08009930 g     F *ABS*	0000001e VectorDC
+08000000 g     O *ABS*	000000ec _vectors
+08007ff0 g     F *ABS*	00000064 pwm_lld_stop
+080040b4 g     F *ABS*	00000064 extStop
+08000d58 g     F *ABS*	00000086 chSchGoSleepS
+080046e0 g     F *ABS*	00000028 i2cGetErrors
+08007ddc g     F *ABS*	00000214 pwm_lld_start
+080048b8 g     F *ABS*	00000026 i2cReleaseBus
+08004c5c g     F *ABS*	00000064 pwmStop
+200019fc g     O *ABS*	00000008 EXTD1
+20001a40 g     O *ABS*	00000038 I2CD1
+20000800 g       *ABS*	00000000 __heap_base__
+08006eb8 g     F *ABS*	00000028 can_lld_can_receive
+08009c38 g     F *ABS*	00000036 _fstat_r
+0800b310 g     F *ABS*	0000007c Checksum_IHexRecord
+080109d0 g       *ABS*	00000000 _etext
+080006f0 g     F *ABS*	0000002e dbg_check_suspend
+08003bb4 g     F *ABS*	00000032 canAbortTransmission
+080011e4 g     F *ABS*	0000007a chThdCreateI
+08000720 g     F *ABS*	0000002e dbg_check_enable
+08008ce4 g     F *ABS*	00000068 i2c_lld_stop
+08000200  w    F *ABS*	00000002 VectorC8
+08007814 g     F *ABS*	00000030 gpt_lld_stop_timer
+0800936c g     F *ABS*	00000028 spi_lld_unselect
+08004188 g     F *ABS*	00000070 extChannelDisable
+0800952c g     F *ABS*	00000088 spi_lld_receive
+08000ebc g     F *ABS*	0000008a chSchWakeupS
+0800684c g     F *ABS*	0000007e ext_lld_exti_irq_enable
+080050b4 g     F *ABS*	00000068 sdIncomingDataI
+08002da0 g     F *ABS*	00000094 chOQGetI
+08000c78 g     F *ABS*	00000064 _scheduler_init
+08001260 g     F *ABS*	0000007a chThdCreateStatic
+08000f48 g     F *ABS*	0000002a chSchRescheduleS
+08006af8 g     F *ABS*	00000016 Vector94
+0800ceb8 g     F *ABS*	000002f2 ldrInstall
+080030cc g     F *ABS*	0000002e chCoreGrow
+08000200  w    F *ABS*	00000002 VectorA8
+0800e0a0 g     F *ABS*	00000084 memcpy
+0800763c g     F *ABS*	0000001e VectorB4
+0800e088 g     F *ABS*	00000012 __aeabi_fcmpgt
+0800d9c4 g     F *ABS*	00000022 __floatsidf
+0800cdd8 g     F *ABS*	00000094 ldrInit
+08003884 g     F *ABS*	00000076 adcConvert
+08020000 g       *ABS*	00000000 __appcfg_end__
+08000cdc g     F *ABS*	0000007c chSchReadyI
+080000ec g       *ABS*	00000000 __fini_array_end
+08000210  w    F *ABS*	00000008 port_halt
+080045f8 g     F *ABS*	0000007a i2cStart
+08001974 g     F *ABS*	00000092 chSemResetI
+20000800 g       .stacks	00000000 __main_thread_stack_end__
+08003764 g     F *ABS*	00000094 adcStopConversion
+08000a40 g     F *ABS*	0000004c _vt_init
+08006db0 g     F *ABS*	000000d4 can_lld_transmit
+0800248c g     F *ABS*	0000005e chEvtGetAndClearEvents
+08002fac g     F *ABS*	0000006e chCoreAllocI
+080052e4 g     F *ABS*	00000054 spiUnselect
+08003160 g     F *ABS*	00000040 _heap_init
+080058e4 g     F *ABS*	00000064 Vector74
+200019c4 g     O *ABS*	00000038 CAND1
+08003490 g     F *ABS*	0000003e halInit
+08003960 g     F *ABS*	0000000a canInit
+0800a9d8 g     F *ABS*	000000f4 flashPageErase
+0800dfb8 g     F *ABS*	00000066 __lesf2
+20000c88 g       *ABS*	00000000 _bss_start
+08000f74 g     F *ABS*	0000007c chSchDoRescheduleBehind
+080053a0 g     F *ABS*	0000007a spiStartExchange
+08000200  w    F *ABS*	00000002 UsageFaultVector
+20005000 g       *ABS*	00000000 __heap_end__
+08000200  w    F *ABS*	00000002 DebugMonitorVector
+08001708 g     F *ABS*	0000009c chThdCreateFromHeap
+0800d9a4 g     F *ABS*	0000001e __aeabi_ui2d
+08006ee0 g     F *ABS*	0000011a can_lld_receive
+0800078c g     F *ABS*	0000003c dbg_check_unlock
+08004d94 g     F *ABS*	00000062 pwmDisableChannel
+0800d720 g     F *ABS*	00000000 __aeabi_drsub
+08000200  w    F *ABS*	00000002 Vector40
+08009bf0 g     F *ABS*	00000048 _sbrk_r
+0800010c g     F *ABS*	000000f0 ResetHandler
+08002b64 g     F *ABS*	000000e6 chIQReadTimeout
+08008ac0 g     F *ABS*	0000001e VectorBC
+08004040 g     F *ABS*	00000072 extStart
+08009b70 g     F *ABS*	00000026 _read_r
+08003414 g     F *ABS*	0000007a chHeapStatus
+080025d0 g     F *ABS*	00000048 chEvtSignal
+0800027c g     F *ABS*	0000004a _port_init
+080036d4 g     F *ABS*	0000008e adcStartConversionI
+0800730c g     F *ABS*	00000046 ext_lld_stop
+08005d34 g     F *ABS*	000000e8 hal_lld_init
+0800d9e8 g     F *ABS*	0000003a __extendsfdf2
+0800dce4 g     F *ABS*	000001d0 __aeabi_ddiv
+0800d72c g     F *ABS*	00000276 __adddf3
+08003de8 g     F *ABS*	0000008e canTransmitTimeout
+0800dfc0 g     F *ABS*	0000005e __nesf2
+08009130 g     F *ABS*	00000070 spi_lld_init
+08001a08 g     F *ABS*	00000036 chSemWait
+0800da90 g     F *ABS*	00000254 __aeabi_dmul
+080014f0 g     F *ABS*	0000007c chThdExitS
+0800401c g     F *ABS*	00000022 extObjectInit
+080103f0 g     O *ABS*	00000004 _global_impure_ptr
+0800bab0 g     F *ABS*	00000064 readn
+08003698 g     F *ABS*	0000003a adcStartConversion
+20001f58 g     O *ABS*	00000004 shell_terminated
+0800b024 g     F *ABS*	000002ea Read_IHexRecord
+08009b30 g     F *ABS*	00000038 boardReset
+08004888 g     F *ABS*	0000002e i2cAcquireBus
+08006e84 g     F *ABS*	00000032 can_lld_abort_transmit
+08003570 g     F *ABS*	0000000a adcInit
+0800d9a4 g     F *ABS*	0000001e __floatunsidf
+08004674 g     F *ABS*	0000006c i2cStop
+08004570 g     F *ABS*	00000042 gptPolledDelay
+08006d88 g     F *ABS*	00000028 can_lld_can_transmit
+08004b04 g     F *ABS*	0000005c palWriteBus
+0800541c g     F *ABS*	00000070 spiStartSend
+080095b4 g     F *ABS*	0000003a spi_lld_polled_exchange
+20001550 g     O *ABS*	00000408 dbg_trace_buffer
+0800a11c g     F *ABS*	0000001c shellInit
+08006234 g     F *ABS*	00000090 adc_lld_start
+0800afb0 g     F *ABS*	00000072 New_IHexRecord
+08000200  w    F *ABS*	00000002 PendSVVector
+0800e6e0 g     F *ABS*	0000001c strtol
+0800df10 g     F *ABS*	0000009e __aeabi_d2f
+08000a8c g     F *ABS*	000000ac chVTSetI
+08006524 g     F *ABS*	0000003a Vector64
+20001fdc g       *ABS*	00000000 _bss_end
+0800adf4 g     F *ABS*	00000036 linearFlashProgramFinish
+20001958 g     O *ABS*	00000004 dbg_panic_msg
+08003d20 g     F *ABS*	00000050 canSetFiltersI
+08000108  w    F *ABS*	00000002 _default_exit
+0800823c g     F *ABS*	000000ec _pal_lld_setgroupmode
+08006150 g     F *ABS*	000000e2 adc_lld_init
+08007b98 g     F *ABS*	00000064 icu_lld_stop
+080057c0 g     F *ABS*	0000002e spiAcquireBus
+0800548c g     F *ABS*	00000070 spiStartReceive
+08000200  w    F *ABS*	00000002 VectorCC
+0800e074 g     F *ABS*	00000012 __aeabi_fcmpge
+20001aa8 g     O *ABS*	00000258 SD3
+0800dec0 g     F *ABS*	0000004e __fixdfsi
+08009950 g     F *ABS*	0000005e sd_lld_init
+080018fc g     F *ABS*	0000003e chSemInit
+08000200  w    F *ABS*	00000002 Vector54
+08006b10 g     F *ABS*	00000114 Vector98
+20001990 g     O *ABS*	00000034 ADCD1
+08004460 g     F *ABS*	00000036 gptStartOneShot
+0800d3a8 g     F *ABS*	0000026c ldrRun
+08000200  w    F *ABS*	00000002 VectorD8
+0800dfb0 g     F *ABS*	0000006e __gtsf2
+080026c8 g     F *ABS*	00000024 chEvtGetAndClearFlagsI
+0800ad90 g     F *ABS*	00000062 linearFlashProgramStart
+0800d72c g     F *ABS*	00000276 __aeabi_dadd
+0800392c g     F *ABS*	00000026 adcReleaseBus
+08008d4c g     F *ABS*	0000015c i2c_lld_master_receive_timeout
+08000200  w    F *ABS*	00000002 Vector24
+080008f0 g     F *ABS*	0000002e chDbgCheckClassI
+08001f90 g     F *ABS*	0000002e chMtxLock
+0800a168 g     F *ABS*	00000030 shellCreateStatic
+080091a0 g     F *ABS*	0000013c spi_lld_start
+0800e060 g     F *ABS*	00000012 __aeabi_fcmple
+08002594 g     F *ABS*	0000003a chEvtGetAndClearFlags
+0800301c g     F *ABS*	00000024 chCoreStatus
+0800da24 g     F *ABS*	0000006a __aeabi_ul2d
+080010ac g     F *ABS*	0000000a chSchDoReschedule
+08000550 g     F *ABS*	000000a8 chSysInit
+0800ce88 g     F *ABS*	00000030 ldrUnlock
+08001400 g     F *ABS*	00000044 chThdSleep
+08002980 g     F *ABS*	0000005a chIQInit
+0800511c g     F *ABS*	00000050 sdRequestDataI
+0800f590 g     O *ABS*	00000054 _stm32_dma_streams
+0800af34 g     F *ABS*	0000007a flashJumpApplication
+08005a74 g     F *ABS*	00000064 Vector84
+08000bb0 g     F *ABS*	00000064 chTimeIsWithin
+08004010 g     F *ABS*	0000000a extInit
+08000220 g     F *ABS*	0000002e SysTickVector
+08004910 g     F *ABS*	00000072 icuStart
+0800517c g     F *ABS*	00000034 spiObjectInit
+20001a78 g     O *ABS*	00000030 SPID1
+08003a78 g     F *ABS*	00000088 canStop
+2000195c g     O *ABS*	00000004 dbg_isr_cnt
+08005e1c g     F *ABS*	0000012c stm32_clock_init
+0801fc00 g     O *ABS*	00000348 flash_apps
+08008140 g     F *ABS*	000000fc _pal_lld_init
+08003d70 g     F *ABS*	0000002e canClearFilters
+08004f50 g     F *ABS*	0000000a sdInit
+08000200  w    F *ABS*	00000002 BusFaultVector
+0800d728 g     F *ABS*	0000027a __aeabi_dsub
+08000200  w    F *ABS*	00000002 VectorD0
+08002f20 g     F *ABS*	00000052 _core_init
+08002244 g     F *ABS*	000000d4 chMtxUnlockS
+08007dbc g     F *ABS*	00000020 pwm_lld_init
+08001378 g     F *ABS*	0000004c chThdResume
+08003078 g     F *ABS*	00000052 chCoreTrimI
+20001a04 g     O *ABS*	00000010 GPTD3
+0800da24 g     F *ABS*	0000006a __floatundidf
+080020b8 g     F *ABS*	00000036 chMtxTryLock
+20001a2c g     O *ABS*	00000014 PWMD2
+08004fcc g     F *ABS*	00000068 sdStart
+0800ba6c g     F *ABS*	00000044 read
+080072a0 g     F *ABS*	00000012 ext_lld_init
+08000200  w    F *ABS*	00000002 VectorE4
+08004d28 g     F *ABS*	0000006a pwmEnableChannel
+08002318 g     F *ABS*	00000096 chMtxUnlockAll
+08008ae0 g     F *ABS*	00000056 VectorC0
+0800e400 g     F *ABS*	000000a2 strncmp
+080077c0 g     F *ABS*	00000054 gpt_lld_start_timer
+08000360 g     F *ABS*	00000014 _port_switch
+00005000 g       *ABS*	00000000 __ram_size__
+0800e4b0 g     F *ABS*	00000068 strncpy
+08001a40 g     F *ABS*	000000a8 chSemWaitS
+0800dfc0 g     F *ABS*	0000005e __eqsf2
+08000250 g     F *ABS*	0000002c SVCallVector
+080000fc  w    F *ABS*	0000000a __late_init
+0800abf8 g     F *ABS*	00000114 flashPageWrite
+08004270 g     F *ABS*	0000000a gptInit
+08000a14 g     F *ABS*	00000020 chDbgPanic
+080092dc g     F *ABS*	00000066 spi_lld_stop
+20001964 g     O *ABS*	00000010 vtlist
+08000200  w    F *ABS*	00000002 HardFaultVector
+080002c8 g     F *ABS*	00000086 _port_irq_epilogue
+08003040 g     F *ABS*	00000036 chCoreTrim
+08004518 g     F *ABS*	00000058 gptStopTimerI
+080024ec g     F *ABS*	0000004c chEvtAddEvents
+08002f74 g     F *ABS*	00000036 chCoreAlloc
+08006ffc g     F *ABS*	0000018e can_lld_set_filters
+08009bd4 g     F *ABS*	0000001a _close_r
+0800a138 g     F *ABS*	00000030 shellCreate
+080079a0 g     F *ABS*	00000024 icu_lld_init
+0800d9c4 g     F *ABS*	00000022 __aeabi_i2d
+080047d4 g     F *ABS*	000000b2 i2cMasterReceiveTimeout
+08006c48 g     F *ABS*	000000c0 can_lld_start
+08000920 g     F *ABS*	0000002e chDbgCheckClassS
+0800320c g     F *ABS*	000000fc chHeapAlloc
+08001620 g     F *ABS*	00000054 chThdAddRef
+080080e8 g     F *ABS*	00000054 pwm_lld_disable_channel
+20001f5c g     O *ABS*	00000050 app_loader
+08007270 g     F *ABS*	00000022 can_lld_wakeup
+08004bb0 g     F *ABS*	0000000a pwmInit
+0800765c g     F *ABS*	00000024 gpt_lld_init
+08004a44 g     F *ABS*	00000074 icuDisable
+0800dce4 g     F *ABS*	000001d0 __divdf3
+08004ac0 g     F *ABS*	00000042 palReadBus
+080049e8 g     F *ABS*	0000005c icuEnable
+08000898 g     F *ABS*	00000056 dbg_check_leave_isr
+0800da90 g     F *ABS*	00000254 __muldf3
+080109d0 g       *ABS*	00000000 _textdata
+0800941c g     F *ABS*	00000088 spi_lld_exchange
+08006688 g     F *ABS*	0000010e VectorE0
+00000000 g       *ABS*	00000000 _text
+08000200  w    F *ABS*	00000002 MemManageVector
+20001a14 g     O *ABS*	00000018 ICUD4
+0800396c g     F *ABS*	00000072 canObjectInit
+080000ec g       *ABS*	00000000 __fini_array_start
+0800dfc0 g     F *ABS*	0000005e __cmpsf2
+08003c34 g     F *ABS*	0000003a canTryReceive
+08001444 g     F *ABS*	00000048 chThdSleepUntil
+0800e130 g     F *ABS*	0000008e memset
+0800b8d0 g     F *ABS*	000000ba main
+08005820 g     F *ABS*	00000060 Vector6C
+080042a0 g     F *ABS*	00000072 gptStart
+080035c8 g     F *ABS*	0000006c adcStart
+08010980 g     F .text	00000038 app_thread
+080048e0 g     F *ABS*	0000000a icuInit
+20001974 g     O *ABS*	0000001c rlist
+080017b0 g     F *ABS*	00000048 chRegFirstThread
+08000200  w    F *ABS*	00000002 VectorA0
+08005170 g     F *ABS*	0000000a spiInit
+080072b4 g     F *ABS*	00000056 ext_lld_start
+0800dfb8 g     F *ABS*	00000066 __ltsf2
+080057f0 g     F *ABS*	00000026 spiReleaseBus
+080048ec g     F *ABS*	00000022 icuObjectInit
+0800357c g     F *ABS*	0000004c adcObjectInit
+0800b9c8 g     F *ABS*	000000a4 printn
+0800ab5c g     F *ABS*	0000009a flashPageCompare
+080044e8 g     F *ABS*	0000002e gptStopTimer
+08000840 g     F *ABS*	00000056 dbg_check_enter_isr
+08008ea8 g     F *ABS*	00000180 i2c_lld_master_transmit_timeout
+08004984 g     F *ABS*	00000064 icuStop
+0800df10 g     F *ABS*	0000009e __truncdfsf2
+0800e5c0 g     F *ABS*	00000120 _strtol_r
+08001be0 g     F *ABS*	00000092 chSemSignal
+080000ec g       *ABS*	00000000 __init_array_end
+08004b60 g     F *ABS*	00000046 palSetBusMode
+08005034 g     F *ABS*	00000080 sdStop
+08008054 g     F *ABS*	00000094 pwm_lld_enable_channel
+080059ac g     F *ABS*	00000064 Vector7C
+08000200  w    F *ABS*	00000002 VectorC4
+0800da34 g     F *ABS*	0000005a __aeabi_l2d
+08003be8 g     F *ABS*	0000004c canAbortTransmissionI
+08003b00 g     F *ABS*	0000003a canTryTransmit
+08005c5c g     F *ABS*	000000a8 dmaStreamRelease
+080041f8 g     F *ABS*	0000006a extSetChannelModeI
+08004118 g     F *ABS*	00000070 extChannelEnable
+08001f58 g     F *ABS*	00000038 chMtxInit
+08000530 g     F *ABS*	0000001e _idle_thread
+08002690 g     F *ABS*	00000036 chEvtBroadcastFlags
+08002e34 g     F *ABS*	000000e6 chOQWriteTimeout
+0800e028 g     F *ABS*	00000010 __aeabi_cfcmple
+08004bbc g     F *ABS*	00000022 pwmObjectInit
+08007d9c g     F *ABS*	0000001e VectorB0
+0800e8b0 g     O *ABS*	00000016 ch_debug
+0800a424 g     F *ABS*	00000524 chprintf
+0800ab24 g     F *ABS*	00000036 flashPageRead
+080069e0 g     F *ABS*	00000118 Vector90
+08002618 g     F *ABS*	00000076 chEvtSignalI
+0800e1c0 g     F *ABS*	0000007e strcmp
+20001960 g     O *ABS*	00000004 dbg_lock_cnt
+0800753c g     F *ABS*	000000c0 ext_lld_channel_disable
+08003634 g     F *ABS*	00000064 adcStop
+08004cc0 g     F *ABS*	00000066 pwmChangePeriod
+08007cc4 g     F *ABS*	00000030 icu_lld_disable
+0800277c g     F *ABS*	0000007c chEvtWaitOne
+20000000 g       *ABS*	00000000 __ram_start__
+08000374 g     F *ABS*	0000001a _port_thread_start
+080064e8 g     F *ABS*	0000003a Vector60
+08000200  w    F *ABS*	00000002 Vector1C
+08000ff0 g     F *ABS*	000000ba chSchDoRescheduleAhead
+08004314 g     F *ABS*	00000064 gptStop
+08004708 g     F *ABS*	000000cc i2cMasterTransmitTimeout
+08000200  w    F *ABS*	00000002 Vector48
+08008b38 g     F *ABS*	00000054 i2c_lld_init
+08003f88 g     F *ABS*	00000080 canWakeup
+20000400 g       .stacks	00000000 __process_stack_base__
+08002868 g     F *ABS*	00000064 chEvtWaitAll
+080055a4 g     F *ABS*	000000ba spiExchange
+08006328 g     F *ABS*	000000fe adc_lld_start_conversion
+0800dfb0 g     F *ABS*	0000006e __gesf2
+08009bb8 g     F *ABS*	0000001c _write_r
+08006c24 g     F *ABS*	00000024 can_lld_init
+0800d614 g     F *ABS*	00000108 ldrGetInfo
+08001cf8 g     F *ABS*	0000009a chSemAddCounterI
+20000e50 g     O *ABS*	00000040 app_threads
+20000c80 g     O *ABS*	00000004 _impure_ptr
+08005880 g     F *ABS*	00000064 Vector70
+0800e038 g     F *ABS*	00000012 __aeabi_fcmpeq
+08009910 g     F *ABS*	0000001e VectorD4
+080026ec g     F *ABS*	0000008e chEvtDispatch
+080004bc g     F *ABS*	00000068 nvicSetSystemHandlerPriority
+080045cc g     F *ABS*	0000002c i2cObjectInit
+08004498 g     F *ABS*	00000050 gptStartOneShotI
+08005224 g     F *ABS*	0000006a spiStop
+0800a198 g     F *ABS*	000000f8 shellGetLine
+08003b3c g     F *ABS*	00000078 canTryTransmitI
+0800aacc g     F *ABS*	00000056 flashPageCheckErased
+08001674 g     F *ABS*	00000092 chThdRelease
+080094a4 g     F *ABS*	00000088 spi_lld_send
+0800e020 g     F *ABS*	00000018 __aeabi_cfrcmple
+080079c4 g     F *ABS*	000001d4 icu_lld_start
+080054fc g     F *ABS*	000000a6 spiIgnore
+200014a0 g     O *ABS*	000000b0 _idle_thread_wa
+08002c4c g     F *ABS*	00000058 chOQInit
+08002ac8 g     F *ABS*	0000009c chIQGetTimeout
+20000800 g       *ABS*	00000000 _data
+20001fac g     O *ABS*	00000030 app_loadercfg
+08000200  w    F *ABS*	00000002 Vector4C
+08005a10 g     F *ABS*	00000064 Vector80
+08002a2c g     F *ABS*	0000009a chIQPutI
+08000350 g     F *ABS*	0000000e _port_switch_from_isr
+08010e54 g       *ABS*	00000000 __apppgm_base__
+0800e04c g     F *ABS*	00000012 __aeabi_fcmplt
+08006560 g     F *ABS*	0000003a Vector68
+08002158 g     F *ABS*	000000ec chMtxUnlock
+080068cc g     F *ABS*	00000056 ext_lld_exti_irq_disable
+08000950 g     F *ABS*	00000028 _trace_init
+08005290 g     F *ABS*	00000054 spiSelect
+08005660 g     F *ABS*	000000b0 spiSend
+20000400 g       .stacks	00000000 __main_stack_end__
+08005948 g     F *ABS*	00000064 Vector78
+08009394 g     F *ABS*	00000088 spi_lld_ignore
+08003f08 g     F *ABS*	00000080 canSleep
+20000c84 g       *ABS*	00000000 _edata
+20005000 g       *ABS*	00000000 __ram_end__
+20000800 g       *ABS*	00000000 _end
+08008b8c g     F *ABS*	00000156 i2c_lld_start
+080039e0 g     F *ABS*	00000096 canStart
+080027f8 g     F *ABS*	00000070 chEvtWaitAny
+08000b38 g     F *ABS*	00000078 chVTResetI
+080067d4 g     F *ABS*	0000003c RTCAlarm_IRQHandler
+08000200 g     F *ABS*	00000002 _unhandled_exception
+0800775c g     F *ABS*	00000064 gpt_lld_stop
+08004f5c g     F *ABS*	0000006e sdObjectInit
+08000200  w    F *ABS*	00000002 Vector88
+080023b0 g     F *ABS*	0000006e chEvtRegisterMask
+20000400 g       .stacks	00000000 __main_thread_stack_base__
+08004410 g     F *ABS*	00000050 gptStartContinuousI
+0800dec0 g     F *ABS*	0000004e __aeabi_d2iz
+20000854 g     O *ABS*	00000004 __ctype_ptr__
+0800e028 g     F *ABS*	00000010 __aeabi_cfcmpeq
+0801fc00 g       *ABS*	00000000 __appcfg_start__
+08000978 g     F *ABS*	0000009c dbg_trace
+080012dc g     F *ABS*	0000009a chThdSetPriority
+080102d0 g     O *ABS*	00000101 _ctype_
+0800ce6c g     F *ABS*	0000001c ldrLock
+080000ec g       *ABS*	00000000 __init_array_start
+08009a48 g     F *ABS*	00000084 sd_lld_stop
+0800156c g     F *ABS*	000000a6 chThdWait
+080062c4 g     F *ABS*	00000064 adc_lld_stop
+080051b0 g     F *ABS*	00000072 spiStart
+20001d00 g     O *ABS*	00000258 SD1
+08007bfc g     F *ABS*	000000c8 icu_lld_enable
+0800e580 g     F *ABS*	0000003c strspn
+08001108 g     F *ABS*	000000ac _thread_init
+08000200  w    F *ABS*	00000002 Vector50
+08006428 g     F *ABS*	00000046 adc_lld_stop_conversion
+0800e3a0 g     F *ABS*	0000005e strlen
+08005b4c g     F *ABS*	00000110 dmaStreamAllocate
+0800148c g     F *ABS*	0000003e chThdYield
+080017f8 g     F *ABS*	00000076 chRegNextThread
+080037f8 g     F *ABS*	0000008c adcStopConversionI
+0800718c g     F *ABS*	000000c0 can_lld_clear_filters
+0800043c g     F *ABS*	00000080 nvicDisableVector
+08002d00 g     F *ABS*	000000a0 chOQPutTimeout
+08001ae8 g     F *ABS*	0000003a chSemWaitTimeout
+20000000 g       .stacks	00000000 __main_stack_base__
+08006798 g     F *ABS*	0000003c Vector44
+0800d9e8 g     F *ABS*	0000003a __aeabi_f2d
+08000200  w    F *ABS*	00000002 Vector28
+08009adc g     F *ABS*	00000052 boardInit
+08007980 g     F *ABS*	0000001e VectorB8
+080099b0 g     F *ABS*	00000096 sd_lld_start
+00000400 g       *ABS*	00000000 __main_stack_size__
+080031a0 g     F *ABS*	0000006c chHeapInit
+0800193c g     F *ABS*	00000036 chSemReset
+08000804 g     F *ABS*	0000003c dbg_check_unlock_from_isr
+08004378 g     F *ABS*	00000060 gptChangeInterval
+080006c0 g     F *ABS*	0000002e dbg_check_disable
+0800d728 g     F *ABS*	0000027a __subdf3
+20000800 g       .stacks	00000000 __process_stack_end__
+08000200  w    F *ABS*	00000002 Vector34
+08005710 g     F *ABS*	000000b0 spiReceive
+080029dc g     F *ABS*	00000050 chIQResetI
+08009ad0 g     F *ABS*	0000000a __early_init
+08001c74 g     F *ABS*	00000084 chSemSignalI
+080013c4 g     F *ABS*	0000003a chThdTerminate
+0800ae2c g     F *ABS*	00000106 linearFlashProgram
+08000200  w    F *ABS*	00000002 VectorA4
+00000400 g       *ABS*	00000000 __process_stack_size__
+0800e520 g     F *ABS*	00000052 strpbrk
+080034d0 g     F *ABS*	00000064 halIsCounterWithin
+08000200  w    F *ABS*	00000002 Vector20
+0800724c g     F *ABS*	00000022 can_lld_sleep
+08001b24 g     F *ABS*	000000ba chSemWaitTimeoutS
+
+

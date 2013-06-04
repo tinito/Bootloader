@@ -28,7 +28,7 @@ MEMORY
 {
     flash : org = 0x08000000, len = 64k
     appcfg : org = 0x08000000+64k, len = 4k
-    app : org = 0x08000000+68k, len = 60k
+    app : org = __app_base__, len = 60k
     ram : org = 0x20000000, len = 20k
 }
 
@@ -168,3 +168,6 @@ _end            = .;
 
 __heap_base__   = _end;
 __heap_end__    = __ram_end__;
+
+__app_base__    = _etext;
+__app_end__     = 0x08000000 + 128k;

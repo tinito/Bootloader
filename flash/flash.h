@@ -56,10 +56,6 @@
 #define FLASH_CORRUPTED_FLASH_ERROR(error)  (error <= -10)
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef unsigned int flashpage_t;
 typedef uint16_t flashdata_t;
 
@@ -125,11 +121,5 @@ int flashPageWrite(flashpage_t page, const flashdata_t* buffer);
  * @return FLASH_RETURN_NO_PERMISSION   Access denied.
  */
 int flashPageWriteIfNeeded(flashpage_t page, const flashdata_t* buffer);
-
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* FLASH_C_ */

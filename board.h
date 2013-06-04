@@ -106,12 +106,16 @@
  * Everything input with pull-up except:
  * PB0  - Normal input with pull-up (BUTTON2).
  * PB1  - Normal input with pull-up (BUTTON1).
+ * PB6  - TX 1 (remapped)
+ * PB7  - RX 1 (remapped)
  * PB1  - Normal input (ICU4 CH1).
  * PB8  - Normal input (CAN1 RX).
  * PB9  - Alternate output (CAN1 TX).
+ * PB10 - TX 3
+ * PB11 - RX 3
  */
-#define VAL_GPIOBCRL            0x88888888      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0x888888B4      /* PB15...PB8 */
+#define VAL_GPIOBCRL            0x4B888888      /*  PB7...PB0 */
+#define VAL_GPIOBCRH            0x88884BB4      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 
 /*
@@ -127,6 +131,7 @@
 extern "C" {
 #endif
 void boardInit(void);
+void boardReset(void);
 #ifdef __cplusplus
 }
 #endif
