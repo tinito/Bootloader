@@ -46,10 +46,6 @@ ifeq ($(USE_FWLIB),)
   USE_FWLIB = no
 endif
 
-ifeq ($(APPNAME),)
-  APPNAME = app1
-endif
-
 #
 # Architecture or project specific options
 ##############################################################################
@@ -112,6 +108,10 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 OSELF = $(BOOTLOADER)/build/ch.elf
 
 APPSTACK = 256
+
+ifeq ($(APPNAME),)
+  APPNAME = $(PROJECT)
+endif
 
 #
 # Project, sources and paths

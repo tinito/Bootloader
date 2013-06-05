@@ -84,7 +84,7 @@ CSRC = $(PORTSRC) \
        ./flash/ihex.c \
        main.c \
        print.c \
-       loader/apploader.c
+       apploader.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -115,8 +115,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various \
-         ./loader
+         $(CHIBIOS)/os/various
 
 #
 # Project, sources and paths
@@ -213,3 +212,4 @@ ifeq ($(USE_FWLIB),yes)
 endif
 
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk
+

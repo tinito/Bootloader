@@ -8,7 +8,7 @@
 #include "flash/ihex.h"
 #include "flash/flashconfig.h"
 
-#include "loader/apploader.h"
+#include "apploader.h"
 
 #include "print.h"
 
@@ -41,11 +41,6 @@ static void init_loader_config(AppLoaderConfig *cfgp) {
   cfgp->pgmend   = (uint32_t)__apppgm_end__;
   cfgp->cfgstart = (uint32_t)__appcfg_start__;
   cfgp->cfgend   = (uint32_t)__appcfg_end__;
-}
-
-static void empty_incoming_queue(BaseChannel *chp) {
-
-  while (chnGetTimeout(chp, TIME_IMMEDIATE) >= 0) {}
 }
 
 /*===========================================================================*/
@@ -99,6 +94,7 @@ static void cmd_reboot(BaseSequentialStream *chp, int argc, char *argv[]) {
 static void cmd_app_list(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   uint32_t i;
+  (void)argc; (void)argv;
 
   chprintf(chp, "ID @.text   #.text   @.bss    #.bss    @.data   #.data   "
                 "@datapgm #stack   @thread  Name\r\n");
@@ -119,7 +115,6 @@ static void cmd_app_install(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   (void)chp; (void)argc, (void)argv;
 
-  empty_incoming_queue(app_loadercfg.chp);
   ldrLock(&app_loader);
   ldrInstall(&app_loader);
   ldrUnlock(&app_loader);
@@ -174,31 +169,6 @@ static const ShellConfig shell_cfg1 = {
   commands
 };
 
-static void start_apps(void) {
-
-  static BaseSequentialStream *const chp =
-    (BaseSequentialStream *)&SERIAL_DRIVER;
-  unsigned i;
-
-  ldrLock(&app_loader);
-  for (i = 0; i < flash_apps.numapps; ++i) {
-    const app_info_t *const infop = (const app_info_t *)&flash_apps.infos[i];
-    if (app_threads[i] == NULL) {
-      chprintf(chp, "Starting app \"%s\" ...\r\n");
-      app_threads[i] = chThdCreateFromHeap(NULL, infop->stacklen, NORMALPRIO,
-                                           (tfunc_t)infop->threadadr,
-                                           (void *)&app_threads[i]);
-      if (app_threads[i] == NULL) {
-        chprintf(chp, "ERROR: Cannot allocate the \"%s\" stack (%d B)\r\n",
-                 infop->name, infop->stacklen);
-      } else {
-        chprintf(chp, "App \"%s\" started\r\n", infop->name);
-      }
-    }
-  }
-  ldrUnlock(&app_loader);
-}
-
 /*===========================================================================*/
 /* Application threads.                                                      */
 /*===========================================================================*/
@@ -245,7 +215,6 @@ int main(void) {
   /* Initializes the app loader.*/
   init_loader_config(&app_loadercfg);
   ldrInit(&app_loader, &app_loadercfg);
-  /*start_apps();*/
 
   /* Shell manager initialization.*/
   shellInit();

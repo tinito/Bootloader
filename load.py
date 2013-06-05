@@ -14,7 +14,7 @@ THREAD_PC_OFFSET = 1
 MAX_NAME_LENGTH = 31
 
 
-def __find_adress(elffile, name):
+def __find_address(elffile, name):
     dwarfinfo = elffile.get_dwarf_info()
     for CU in dwarfinfo.iter_CUs():
         for DIE in CU.iter_DIEs():
@@ -54,8 +54,9 @@ def __main():
                            newline = '\r\n',
                            line_buffering = True,
                            encoding = 'ascii')
-
     try:
+        ser.flushInput()
+    
         # Send the section sizes and app name
         sizestr = '%0.8X,%0.8X,%0.8X,%0.8X,%0.2X%s' % (pgmlen, bsslen, datalen, stacklen, len(appname), appname)
         print sizestr
@@ -79,7 +80,7 @@ def __main():
         
         with open(ldobjelf, 'rb') as f:
             elffile = ELFFile(f)
-            threadadr = __find_adress(elffile, ENTRY_THREAD_NAME)
+            threadadr = __find_address(elffile, ENTRY_THREAD_NAME)
             print 'app_thread = 0x%0.8X' % threadadr
         
         # Read the generated IHEX file and remove unused records
@@ -107,13 +108,11 @@ def __main():
         
         line = sio.readline().strip()
         print line
-        if line != '^':
+        if line != '$':
             raise RuntimeError('Error while terminating programming (received "%s")' % line)
         ser.close()
         
     except:
-        print '!'
-        sio.write(unicode('\n::::::::\n!\n'))
         ser.close()
         raise
 
