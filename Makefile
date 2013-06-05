@@ -58,7 +58,7 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = /home/texzk/ChibiStudio/chibios
+CHIBIOS = ../ChibiOS-git
 include ./board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -82,9 +82,9 @@ CSRC = $(PORTSRC) \
        ./flash/flash.c \
        ./flash/helper.c \
        ./flash/ihex.c \
+       ./loader/apploader.c \
        main.c \
-       print.c \
-       apploader.c
+       print.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -115,7 +115,7 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various ./loader
 
 #
 # Project, sources and paths
