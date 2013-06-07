@@ -58,7 +58,7 @@ endif
 PROJECT = ch
 
 # Imported source files and paths
-CHIBIOS = ../ChibiOS-git
+CHIBIOS = /opt/ChibiStudio/chibios
 include ./board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -163,7 +163,8 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS = -Dstrcasecmp=strcmp -DPORT_INT_REQUIRED_STACK=32
+DDEFS = -Dstrcasecmp=strcmp -DPORT_INT_REQUIRED_STACK=32 \
+        -DLDR_ENABLE_DEBUG=FALSE
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =

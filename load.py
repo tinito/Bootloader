@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-import sys, os, io
+import sys, os, io, time
 import subprocess
 import serial
 from elftools.elf.elffile import ELFFile
 
 
-SERIAL_PORT = '/dev/ttyUSB0'
-#SERIAL_PORT = '/dev/pts/41'
+SERIAL_PORT = '/dev/ttyUSB1'
 SERIAL_BAUD = 115200
 ENTRY_THREAD_NAME = 'app_thread'
 THREAD_PC_OFFSET = 1
@@ -55,7 +54,13 @@ def __main():
                            line_buffering = True,
                            encoding = 'ascii')
     try:
-        ser.flushInput()
+        sio.write(unicode('\n\n'))
+        time.sleep(0.1)
+        while ser.inWaiting():
+            ser.flushInput()
+            time.sleep(0.1)
+        sio.write(unicode('app_install\n'))
+        print '"' + sio.readline() + '"'
     
         # Send the section sizes and app name
         sizestr = '%0.8X,%0.8X,%0.8X,%0.8X,%0.2X%s' % (pgmlen, bsslen, datalen, stacklen, len(appname), appname)
@@ -67,7 +72,7 @@ def __main():
         pgmadr     = int(addrs[0].strip(), 16)
         bssadr     = int(addrs[1].strip(), 16)
         dataadr    = int(addrs[2].strip(), 16)
-        datapgmadr = int(addrs[2].strip(), 16)
+        datapgmadr = int(addrs[3].strip(), 16)
         
         # Link to the OS symbols
         sectopt = [ '--section-start', '.text=0x%0.8X' % pgmadr,

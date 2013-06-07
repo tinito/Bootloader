@@ -27,7 +27,7 @@ static void init_loader_config(AppLoaderConfig *cfgp) {
   static uint8_t pagebuf[FLASH_PAGE_SIZE];
   static uint8_t ihexbuf[2 * (1 + 1 + 2 + 1 + 255 + 1)];
 
-  cfgp->chp = (BaseChannel *)&SD3;
+  cfgp->chp = (BaseChannel *)&SERIAL_DRIVER;
 #if LDR_ENABLE_DEBUG
   cfgp->dbgchp = (BaseChannel *)&SERIAL_DRIVER;
 #endif
@@ -115,6 +115,7 @@ static void cmd_app_install(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   (void)chp; (void)argc, (void)argv;
 
+  chSequentialStreamGet(chp);   /* Remove the buffered '\n'.*/
   ldrLock(&app_loader);
   ldrInstall(&app_loader);
   ldrUnlock(&app_loader);

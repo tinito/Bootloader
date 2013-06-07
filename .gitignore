@@ -1,0 +1,5 @@
+build
+.dep
+apps/*/build
+apps/*/.dep
+

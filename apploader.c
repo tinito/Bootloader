@@ -486,6 +486,9 @@ void ldrInit(AppLoader *ldrp, const AppLoaderConfig *cfgp) {
 
   chDbgCheck(ldrp != NULL, "ldrInit");
   chDbgCheck(cfgp != NULL, "ldrInit");
+#if LDR_ENABLE_DEBUG
+  chDbgCheck(cfgp->chp != cfgp->dbgchp, "ldrInit");
+#endif
 
   chMtxInit(&ldrp->lock);
 
