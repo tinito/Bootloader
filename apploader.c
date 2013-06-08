@@ -38,6 +38,9 @@
 #define DBGPRINT(textp) \
   DBG(CHNWRITE(DBGCH, (const uint8_t *)(textp), strlen((const char *)(textp))))
 
+/**
+ * @brief   IHEX record type identifier.
+ */
 enum ldr_ihex_type_t {
   IHEX_TYPE_DATA    = 0x00, /**< Data record.*/
   IHEX_TYPE_EOF     = 0x01, /**< End of file record.*/
@@ -49,6 +52,9 @@ enum ldr_ihex_type_t {
   IHEX_TYPE__LENGTH
 };
 
+/**
+ * @brief   IHEX record.
+ */
 typedef struct ihex_record_t {
   uint8_t   count;
   uint16_t  offset;
@@ -62,6 +68,9 @@ static const char hex2char[16] = {
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
+/**
+ * @brief   App flash layout..
+ */
 const volatile app_flash_t flash_apps
 __attribute__ ((section(".appcfg"), aligned(2))) = {
   0, 0, { { "", 0, 0, 0, 0, 0, 0, 0, 0, 0 } }
@@ -480,6 +489,13 @@ static ldr_err_t update_flash(AppLoader *ldrp, app_info_t *lastinfop) {
   return LDR_OK;
 }
 
+/**
+ * @brief   Initializes the loader with the given configuration.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @param[in] cfgp
+ *          Pointer to the configuration.
+ */
 void ldrInit(AppLoader *ldrp, const AppLoaderConfig *cfgp) {
 
   extern const uint8_t __apppgm_base__[];
@@ -500,17 +516,44 @@ void ldrInit(AppLoader *ldrp, const AppLoaderConfig *cfgp) {
     ldrp->freeadr = LDR_PGM_ALIGN_NEXT((uint32_t)__apppgm_base__);
 }
 
+/**
+ * @brief   Takes the ownership of an app loader.
+ * @details Locks the mutex of the loader.
+ * @pre     The loader is initialized.
+ * @post    The caller thread has the ownership.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ */
 void ldrLock(AppLoader *ldrp) {
 
   chMtxLock(&ldrp->lock);
 }
 
+/**
+ * @brief   Releases the ownership of an app loader.
+ * @details Unlocks the mutex of the loader.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ */
 void ldrUnlock(AppLoader *ldrp) {
 
   Mutex *lockp = chMtxUnlock(); (void)lockp;
   chDbgCheck(lockp == &ldrp->lock, "ldrUnlock");
 }
 
+/**
+ * @brief   Installation procedure.
+ * @details Starts the installation procedure.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @pre     The input stream does not start with wrong data.
+ * @post    If successful, the app is stored into the flash memory.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @return  Error code.
+ */
 ldr_err_t ldrInstall(AppLoader *ldrp) {
 
   const AppLoaderConfig *cfgp;
@@ -581,6 +624,15 @@ error_dealloc:
 #undef CHECK
 }
 
+/**
+ * @brief   Removes the last app from the flash memory.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @post    The last app is unlinked from the app registry in flash.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @return  Error code.
+ */
 ldr_err_t ldrRemoveLast(AppLoader *ldrp) {
 
   uint32_t oldstart;
@@ -611,6 +663,15 @@ ldr_err_t ldrRemoveLast(AppLoader *ldrp) {
   return LDR_OK;
 }
 
+/**
+ * @brief   Removes the all the apps from the flash memory.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @post    The apps are unlinked from the app registry in flash.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @return  Error code.
+ */
 ldr_err_t ldrRemoveAll(AppLoader *ldrp) {
 
   chDbgCheck(ldrp != NULL, "ldrRemoveLast");
@@ -621,7 +682,21 @@ ldr_err_t ldrRemoveAll(AppLoader *ldrp) {
   return update_flash(ldrp, NULL);
 }
 
-ldr_err_t ldrRun(AppLoader *ldrp, const char *namep, Thread **threadsp) {
+/**
+ * @brief   Runs an app.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @pre     The app is not running.
+ * @post    The app thread is created.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @param[in] namep
+ *          App name.
+ * @param[out] threadsp
+ *          Pointer to the array of thread pointers.
+ * @return  Error code.
+ */
+ldr_err_t ldrRun(AppLoader *ldrp, const char *namep, Thread *threadsp[]) {
 
   uint32_t i;
 
@@ -648,7 +723,7 @@ ldr_err_t ldrRun(AppLoader *ldrp, const char *namep, Thread **threadsp) {
           return LDR_ERR_BADVAL;
         }
       } else {
-        DBGPRINT("App \""); DBGPRINT(namep); DBGPRINT("\" already run\r\n");
+        DBGPRINT("App \""); DBGPRINT(namep); DBGPRINT("\" already running\r\n");
       }
       return LDR_OK;
     }
@@ -657,6 +732,19 @@ ldr_err_t ldrRun(AppLoader *ldrp, const char *namep, Thread **threadsp) {
   return LDR_ERR_BADVAL;
 }
 
+/**
+ * @brief   Gets the information record of an app.
+ * @details Reads from flash and stores into RAM.
+ * @pre     The loader is initialized.
+ * @pre     The caller thread has the ownership.
+ * @param[in,out] ldrp
+ *          Pointer to the loader.
+ * @param[in] namep
+ *          App name.
+ * @param[out] infop
+ *          Pointer to the information record.
+ * @return  Error code.
+ */
 ldr_err_t ldrGetInfo(AppLoader *ldrp, const char *namep, app_info_t *infop) {
 
   uint32_t i;
