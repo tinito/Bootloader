@@ -6,7 +6,7 @@ import serial
 from elftools.elf.elffile import ELFFile
 
 
-SERIAL_PORT = '/dev/ttyUSB1'
+SERIAL_PORT = '/dev/ttyUSB2'
 SERIAL_BAUD = 115200
 ENTRY_THREAD_NAME = 'app_thread'
 THREAD_PC_OFFSET = 1

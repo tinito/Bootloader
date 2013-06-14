@@ -56,7 +56,6 @@ endif
 
 # Define project name here
 PROJECT = app2
-APPNAME = app2
 
 # Imported source files and paths
 CHIBIOS = /opt/ChibiStudio/chibios
@@ -72,7 +71,7 @@ LDSCRIPT= $(BOOTLOADER)/STM32F103xB.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = app2.c
+CSRC = app2.c $(BOOTLOADER)/print.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -109,6 +108,10 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 OSELF = $(BOOTLOADER)/build/ch.elf
 
 APPSTACK = 256
+
+ifeq ($(APPNAME),)
+  APPNAME = $(PROJECT)
+endif
 
 #
 # Project, sources and paths
@@ -208,9 +211,8 @@ $(shell mkdir -p build/obj build/lst)
 
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk
 
-load: $(BUILDDIR)/$(PROJECT).hex $(OBJS) $(LDSCRIPT) $(OSELF) Makefile
+load: $(BUILDDIR)/$(PROJECT).hex $(OBJS) $(LDSCRIPT) Makefile
 	@rm -f $(BUILDDIR)/$(PROJECT).hex $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).dmp
 	@echo Installing $(BUILDDIR)/$(PROJECT).hex ...
-	@touch $(OSELF)
 	$(BOOTLOADER)/load.py $(APPNAME) $(BUILDDIR)/$(PROJECT).hex $(APPSTACK) $(TRGT)ld $(LDSCRIPT) $(OSELF) $(BUILDDIR)/$(PROJECT).map $(BUILDDIR)/$(PROJECT).elf $(OBJS)
-
+	

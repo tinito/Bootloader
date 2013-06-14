@@ -19,15 +19,13 @@ msg_t app_thread(void *arg) {
 	(void) arg;
 
 	cnt = 0xFFFFFFFF;
-#if 0
+
 	print("Hello from APP3\r\n");
-#endif
+
 	while (TRUE) {
 		palTogglePad(LED_GPIO, LED4);
 		cnt--;
-#if 0
 		test(cnt);
-#endif
 		chThdSleepMilliseconds(1000);
 	}
 	return 0;

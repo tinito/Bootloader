@@ -12,7 +12,12 @@ static void test(int n) {
 
 	systime_t time = chTimeNow();
 	printn(n);
+	print("\r\n");
+	printn(biessess);
+	print("\r\n");
 	print(datastr);
+	print("\r\n");
+	print("\r\n");
 	
 	(void)datavec;
 }
@@ -21,10 +26,7 @@ msg_t app_thread(void *arg) {
 	uint32_t cnt;
 
 	(void)arg;
-/*
-	cnt = 0xFFFFFFFF;
-	print("Hello from APP2\r\n");
-*/
+
 	while (TRUE) {
 		palTogglePad(LED_GPIO, LED3);
 		cnt--;

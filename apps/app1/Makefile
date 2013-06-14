@@ -211,9 +211,8 @@ $(shell mkdir -p build/obj build/lst)
 
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk
 
-load: $(OBJS) $(LDSCRIPT) $(OSELF) all
+load: $(BUILDDIR)/$(PROJECT).hex $(OBJS) $(LDSCRIPT) Makefile
 	@rm -f $(BUILDDIR)/$(PROJECT).hex $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).dmp
 	@echo Installing $(BUILDDIR)/$(PROJECT).hex ...
-	@touch $(OSELF)
 	$(BOOTLOADER)/load.py $(APPNAME) $(BUILDDIR)/$(PROJECT).hex $(APPSTACK) $(TRGT)ld $(LDSCRIPT) $(OSELF) $(BUILDDIR)/$(PROJECT).map $(BUILDDIR)/$(PROJECT).elf $(OBJS)
-
+	
