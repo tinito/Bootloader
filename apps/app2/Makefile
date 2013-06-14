@@ -59,7 +59,7 @@ PROJECT = app2
 APPNAME = app2
 
 # Imported source files and paths
-CHIBIOS = /home/texzk/ChibiStudio/chibios
+CHIBIOS = /opt/ChibiStudio/chibios
 include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F1xx/port.mk
