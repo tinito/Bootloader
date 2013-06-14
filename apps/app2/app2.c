@@ -1,6 +1,5 @@
 #include "ch.h"
 #include "hal.h"
-#include "appcfg.h"
 
 #include "../print.h"
 
